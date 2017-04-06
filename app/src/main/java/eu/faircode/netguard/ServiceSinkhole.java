@@ -105,6 +105,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import eu.faircode.netguard.monitor.DownloadFileObserver;
+import eu.faircode.netguard.monitor.FileScannerEngine;
+
 public class ServiceSinkhole extends VpnService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "NetGuard.Service";
 
@@ -165,9 +168,15 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
     private static final int MSG_PACKET = 4;
     private static final int MSG_USAGE = 5;
 
+    private DownloadFileObserver mFileObserver;
+    private FileScannerEngine mScannerEngine;
+
     private enum State {none, waiting, enforcing, stats}
 
-    public enum Command {run, start, reload, stop, stats, set, householding, watchdog}
+    public enum Command {
+        run, start, reload, stop, stats, set, householding, watchdog,
+        startVirusProtect, stopVirusProtect,
+    }
 
     private static volatile PowerManager.WakeLock wlInstance = null;
 
@@ -359,6 +368,12 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
 
             try {
                 switch (cmd) {
+                    case startVirusProtect:
+                        startVirusProtect();
+                        break;
+                    case stopVirusProtect:
+                        stopVirusProtect();
+                        break;
                     case run:
                         run();
                         break;
@@ -424,6 +439,29 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
                     }
                 } else
                     showErrorNotification(ex.toString());
+            }
+        }
+
+        private void startVirusProtect() {
+            Log.i(TAG, "start virus protect");
+            if (mFileObserver == null) {
+                mScannerEngine = new FileScannerEngine(getApplicationContext());
+                mScannerEngine.init();
+
+                mFileObserver = new DownloadFileObserver(getApplicationContext());
+                mFileObserver.startWatching();
+            } else {
+                Log.e(TAG, "try start virus protect but have started");
+            }
+        }
+
+        private void stopVirusProtect() {
+            Log.i(TAG, "stop virus protect");
+            if (mFileObserver != null) {
+                mFileObserver.stopWatching();
+            }
+            if (mScannerEngine != null) {
+                mScannerEngine.destroy();
             }
         }
 
@@ -2237,6 +2275,12 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
                 " vpn=" + (vpn != null) + " user=" + (Process.myUid() / 100000));
 
         commandHandler.queue(intent);
+
+        //TODO remove this code, add another control entry for this intent
+        Intent virusProtectIntent = new Intent(this, ServiceSinkhole.class);
+        virusProtectIntent.putExtra(EXTRA_COMMAND, Command.startVirusProtect);
+        commandHandler.queue(intent);
+
         return START_STICKY;
     }
 
