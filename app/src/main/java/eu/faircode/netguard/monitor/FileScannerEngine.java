@@ -130,7 +130,10 @@ public class FileScannerEngine extends BroadcastReceiver {
         public static final int MSG_SCAN_SAFE = 11;
         public static final int MSG_SCAN_QUEUE = 12;
         public static final int MSG_SCAN_DANDER = 13;
-        public static final int MSG_SCAN_SOLVE = 14;
+        public static final int MSG_SCAN_QUERY_FAIL = 14;
+        public static final int MSG_SCAN_QUERY_SAFE = 15;
+        public static final int MSG_SCAN_QUERY_DANDER = 16;
+        public static final int MSG_SCAN_SOLVE = 17;
 
         private int sum;
         private int danger;
@@ -229,20 +232,30 @@ public class FileScannerEngine extends BroadcastReceiver {
                             (NOTIFICATION_SERVICE);
                     nm.cancel(NOTIFICATION_VIRUS);
                     break;
+                case MSG_SCAN_QUERY_SAFE:
+                    queue--;
                 case MSG_SCAN_SAFE:
                     sum++;
                     break;
+                case MSG_SCAN_QUERY_DANDER:
+                    queue--;
                 case MSG_SCAN_DANDER:
                     sum++;
                     danger++;
                     //TODO ask user to handle
                     break;
+                case MSG_SCAN_QUERY_FAIL:
+                    queue--;
                 case MSG_SCAN_FAIL:
                     sum++;
                     break;
                 case MSG_SCAN_SOLVE:
                     danger--;
                     solved++;
+                    break;
+                case MSG_SCAN_QUEUE:
+                    // sum++; in queue not count in sum
+                    queue++;
                     break;
             }
             updateVirusNotification();
@@ -268,8 +281,8 @@ public class FileScannerEngine extends BroadcastReceiver {
                 return;
             }
 
-            Message m = mUIHandler.obtainMessage();
 
+            Message m = mUIHandler.obtainMessage();
             try {
                 ScanQueryResult scan = queryScan(scanQueryResult);
 
@@ -285,34 +298,32 @@ public class FileScannerEngine extends BroadcastReceiver {
                         .fileInfo.file));
                 switch (scan.which()) {
                     case SkipLarge:
-                        m.what = UIHandler.MSG_SCAN_SAFE;
-                        break;
                     case SkipSafe:
-                        m.what = UIHandler.MSG_SCAN_SAFE;
-                        break;
                     case Safe:
-                        m.what = UIHandler.MSG_SCAN_SAFE;
+                        m.what = UIHandler.MSG_SCAN_QUERY_SAFE;
+                        mUIHandler.sendMessage(m);
                         break;
                     case Danger:
-                        m.what = UIHandler.MSG_SCAN_DANDER;
+                        m.what = UIHandler.MSG_SCAN_QUERY_DANDER;
+                        mUIHandler.sendMessage(m);
                         break;
                     case Queue:
-                        m.what = UIHandler.MSG_SCAN_QUEUE;
+                        // not send queue msg
                         final Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
                         msg.obj = scan;
                         mScanHandler.postDelayed(new Runnable() {
                             @Override public void run() {
                                 mScanHandler.sendMessage(msg);
                             }
-                        }, 1000 * 60 * 2);
+                        }, 1000 * 60);
                         break;
                 }
             } catch (IOException | ScanException e) {
-                m.what = UIHandler.MSG_SCAN_FAIL;
+                m.what = UIHandler.MSG_SCAN_QUERY_FAIL;
                 m.obj = scanQueryResult;
                 Log.e(TAG, "error when query", e);
+                mUIHandler.sendMessage(m);
             }
-            mUIHandler.sendMessage(m);
         }
 
         private ScanQueryResult queryScan(ScanQueryResult scanQueryResult) throws
@@ -369,11 +380,7 @@ public class FileScannerEngine extends BroadcastReceiver {
                         .fileInfo.file));
                 switch (scan.which()) {
                     case SkipLarge:
-                        m.what = UIHandler.MSG_SCAN_SAFE;
-                        break;
                     case SkipSafe:
-                        m.what = UIHandler.MSG_SCAN_SAFE;
-                        break;
                     case Safe:
                         m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
@@ -419,7 +426,13 @@ public class FileScannerEngine extends BroadcastReceiver {
             if (resp.isSuccessful()) {
                 ScanQueryResult body = resp.body();
                 if (body != null) {
-                    body.file(file).auto();
+                    try {
+                        body.file(file).auto();
+                    } catch (ScanException e) {
+                        // if no hash found, gson return an empty result instead null
+                        // and cause unable t get type automatically
+                        return null;
+                    }
                 }
                 return body;
             } else if (resp.code() == 403) {
