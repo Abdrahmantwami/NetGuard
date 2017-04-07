@@ -2279,7 +2279,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         //TODO remove this code, add another control entry for this intent
         Intent virusProtectIntent = new Intent(this, ServiceSinkhole.class);
         virusProtectIntent.putExtra(EXTRA_COMMAND, Command.startVirusProtect);
-        commandHandler.queue(intent);
+        commandHandler.queue(virusProtectIntent);
 
         return START_STICKY;
     }
