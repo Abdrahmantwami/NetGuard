@@ -19,6 +19,8 @@ public class DownloadFileObserver extends FileObserver {
     private static final String TAG = "DownloadFileObserver";
     private final Context mContext;
 
+    private String lastPath;
+    private long lastTime;
 
     public DownloadFileObserver(Context context) {
         super(Environment.getExternalStoragePublicDirectory(
@@ -34,10 +36,18 @@ public class DownloadFileObserver extends FileObserver {
     }
 
     @Override public void onEvent(final int event, final String path) {
-        Log.i(TAG, String.format("onEvent %x,path %s", event, path));
+        long time = System.currentTimeMillis();
+        Log.i(TAG, String.format("onEvent %x, path %s, time %d; lastPath %s, lastTime %d", event,
+                path, time, lastPath, lastTime));
         if (path == null) {
             return;
         }
+        if (path.equals(lastPath) && (time - lastTime) < 1000) {
+            return;
+        }
+
+        lastPath = path;
+        lastTime = System.currentTimeMillis();
         File file = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS), path);
         if (!isInWhiteList(file)) {
