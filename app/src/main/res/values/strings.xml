@@ -211,6 +211,13 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="msg_issue">Please describe the problem and indicate the time of the problem:</string>
     <string name="msg_vpn_cancelled">VPN connection cancelled\nDid you configure another VPN to be an always-on VPN?</string>
     <string name="msg_on">Powering down your device with NetGuard enabled, will automatically start NetGuard on powering up your device</string>
+    <string name="msg_virus_protect_safe">Virus Protection is On. No threats found.</string>
+    <string name="msg_virus_protect_queue_one">A threat is scanning…</string>
+    <string name="msg_virus_protect_queue_some">Some threats is scanning…</string>
+    <string name="msg_virus_protect_danger">%1$d Threats found! Click to handle…</string>
+    <string name="msg_virus_protect_stats">%1$d scanned, %2$d scanning, %3$d threats solved
+        .</string>
+
 
     <string name="title_lockdown_enabled">Traffic is locked down</string>
     <string name="title_unmetered_allowed">Unmetered traffic is allowed</string>

@@ -1,9 +1,13 @@
 package eu.faircode.netguard.monitor;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -11,8 +15,10 @@ import android.os.Message;
 import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.util.TypedValue;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,11 +29,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
+import eu.faircode.netguard.ActivityMain;
 import eu.faircode.netguard.BuildConfig;
 import eu.faircode.netguard.R;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Response;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * Created by Carlos on 4/4/17.
@@ -38,7 +47,7 @@ public class FileScannerEngine extends BroadcastReceiver {
     private final Context mContext;
     private HandlerThread scanThread;
     private ScanHandler mScanHandler;
-    private Handler mUIHandler;
+    private UIHandler mUIHandler;
 
 
     public FileScannerEngine(Context context) {
@@ -92,11 +101,13 @@ public class FileScannerEngine extends BroadcastReceiver {
         LocalBroadcastManager.getInstance(mContext).registerReceiver(this, new IntentFilter
                 (DownloadFileObserver.ACTION_SCAN));
         Log.i(TAG, " scan engine start");
+        mUIHandler.openNotification();
     }
 
     public void destroy() {
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
         scanThread.quit();
+        mUIHandler.closeNotification();
         Log.i(TAG, "scan engine shutdown");
     }
 
@@ -113,9 +124,94 @@ public class FileScannerEngine extends BroadcastReceiver {
     }
 
     private class UIHandler extends Handler {
-        public static final int SCAN_FAIL = -1;
-        public static final int SCAN_SAFE = 0;
-        public static final int SCAN_DANDER = 1;
+        public static final int MSG_OPEN_NOTIFICATION = 0;
+        public static final int MSG_CLOSE_NOTIFICATION = 1;
+        public static final int MSG_SCAN_FAIL = 10;
+        public static final int MSG_SCAN_SAFE = 11;
+        public static final int MSG_SCAN_QUEUE = 12;
+        public static final int MSG_SCAN_DANDER = 13;
+        public static final int MSG_SCAN_SOLVE = 14;
+
+        private int sum;
+        private int danger;
+        private int solved;
+        private int queue;
+        private boolean notificationEnable = false;
+
+        private void openNotification() {
+            this.sendEmptyMessage(MSG_OPEN_NOTIFICATION);
+        }
+
+        private void closeNotification() {
+            this.sendEmptyMessage(MSG_CLOSE_NOTIFICATION);
+        }
+
+
+        public static final int NOTIFICATION_VIRUS = 1024;
+
+        private void updateVirusNotification() {
+            if (!notificationEnable) { return; }
+            NotificationManager nm = (NotificationManager) mContext.getSystemService
+                    (NOTIFICATION_SERVICE);
+            Notification notification = getVirusNotification(sum, danger, solved, queue);
+            nm.notify(NOTIFICATION_VIRUS, notification);
+        }
+
+        private Notification getVirusNotification(int sum, int danger, int solved, int queue) {
+            Intent virus = new Intent(mContext, ActivityMain.class);//TODO create new act
+            PendingIntent pi = PendingIntent.getActivity(mContext, 0, virus, PendingIntent
+                    .FLAG_UPDATE_CURRENT);
+
+            TypedValue tv = new TypedValue();
+            mContext.getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
+                    .setSmallIcon(R.drawable.ic_security_white_24dp)
+                    .setContentIntent(pi)
+                    .setColor(tv.data)
+                    .setOngoing(true)//TODO allow dismiss
+                    .setAutoCancel(false);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder.setCategory(Notification.CATEGORY_SERVICE)
+                        .setVisibility(Notification.VISIBILITY_PUBLIC);
+            }
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                builder.setContentTitle(mContext.getString(R.string.app_name));
+            }
+
+
+            String s1;
+            final String s2 = mContext.getString(R.string.msg_virus_protect_stats, sum, queue,
+                    solved);
+
+            if (danger > 0) {
+                s1 = mContext.getString(R.string.msg_virus_protect_danger, danger);
+                builder.setPriority(Notification.PRIORITY_MAX);
+                //TODO change icon to red, or !,  add sound
+
+            } else if (queue > 0) {
+                s1 = mContext.getString(queue == 1 ? R.string.msg_virus_protect_queue_one : R.string
+                        .msg_virus_protect_queue_some);
+                builder.setPriority(Notification.PRIORITY_DEFAULT);
+            } else {
+                s1 = mContext.getString(R.string.msg_virus_protect_safe);
+                builder.setPriority(Notification.PRIORITY_MIN);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                builder.setContentTitle(s1);
+                builder.setContentText(s2);
+                return builder.build();
+            } else {
+                builder.setContentText(s1);
+                NotificationCompat.BigTextStyle notification = new NotificationCompat
+                        .BigTextStyle(builder);
+                notification.bigText(s2);
+                return notification.build();
+            }
+        }
+
 
         public UIHandler(final Looper looper) {
             super(looper);
@@ -124,17 +220,33 @@ public class FileScannerEngine extends BroadcastReceiver {
         @Override public void handleMessage(final Message msg) {
             Log.i(TAG, String.format("UIHandler what %d, obj %s", msg.what, msg.obj));
             switch (msg.what) {
-                case SCAN_SAFE:
-                    //TODO
+                case MSG_OPEN_NOTIFICATION:
+                    notificationEnable = true;
                     break;
-                case SCAN_DANDER:
+                case MSG_CLOSE_NOTIFICATION:
+                    notificationEnable = false;
+                    NotificationManager nm = (NotificationManager) mContext.getSystemService
+                            (NOTIFICATION_SERVICE);
+                    nm.cancel(NOTIFICATION_VIRUS);
                     break;
-                case SCAN_FAIL:
+                case MSG_SCAN_SAFE:
+                    sum++;
+                    break;
+                case MSG_SCAN_DANDER:
+                    sum++;
+                    danger++;
+                    //TODO ask user to handle
+                    break;
+                case MSG_SCAN_FAIL:
+                    sum++;
+                    break;
+                case MSG_SCAN_SOLVE:
+                    danger--;
+                    solved++;
                     break;
             }
+            updateVirusNotification();
         }
-        //TODO add some method to send notification
-
     }
 
     private class ScanHandler extends Handler {
@@ -173,14 +285,19 @@ public class FileScannerEngine extends BroadcastReceiver {
                         .fileInfo.file));
                 switch (scan.which()) {
                     case SkipLarge:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case SkipSafe:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case Safe:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case Danger:
+                        m.what = UIHandler.MSG_SCAN_DANDER;
                         break;
                     case Queue:
+                        m.what = UIHandler.MSG_SCAN_QUEUE;
                         final Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
                         msg.obj = scan;
                         mScanHandler.postDelayed(new Runnable() {
@@ -191,7 +308,7 @@ public class FileScannerEngine extends BroadcastReceiver {
                         break;
                 }
             } catch (IOException | ScanException e) {
-                m.what = UIHandler.SCAN_FAIL;
+                m.what = UIHandler.MSG_SCAN_FAIL;
                 m.obj = scanQueryResult;
                 Log.e(TAG, "error when query", e);
             }
@@ -252,14 +369,19 @@ public class FileScannerEngine extends BroadcastReceiver {
                         .fileInfo.file));
                 switch (scan.which()) {
                     case SkipLarge:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case SkipSafe:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case Safe:
+                        m.what = UIHandler.MSG_SCAN_SAFE;
                         break;
                     case Danger:
+                        m.what = UIHandler.MSG_SCAN_DANDER;
                         break;
                     case Queue:
+                        m.what = UIHandler.MSG_SCAN_QUEUE;
                         final Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
                         msg.obj = scan;
                         mScanHandler.postDelayed(new Runnable() {
@@ -270,7 +392,7 @@ public class FileScannerEngine extends BroadcastReceiver {
                         break;
                 }
             } catch (IOException | ScanException e) {
-                m.what = UIHandler.SCAN_FAIL;
+                m.what = UIHandler.MSG_SCAN_FAIL;
                 m.obj = ScanQueryResult.errorStubQueryResult(e, file);
                 Log.e(TAG, "error when scan", e);
             }
