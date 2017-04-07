@@ -149,9 +149,76 @@ public class FileScannerEngine extends BroadcastReceiver {
         }
 
         private void handleQuery(ScanQueryResult scanQueryResult) {
+            Log.i(TAG, String.format(" handleQuery scan: %s", scanQueryResult));
+
+            if (scanQueryResult == null) {
+                Log.e(TAG, " msg with null ScanQueryResult obj");
+                return;
+            }
+
+            Message m = mUIHandler.obtainMessage();
+
+            try {
+                ScanQueryResult scan = queryScan(scanQueryResult);
+
+                if (BuildConfig.DEBUG) {
+                    //noinspection ConstantConditions
+                    assert scan != null;
+                }
+
+                m.obj = scan;
+                // TODO write to database
+
+                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan
+                        .fileInfo.file));
+                switch (scan.which()) {
+                    case SkipLarge:
+                        break;
+                    case SkipSafe:
+                        break;
+                    case Safe:
+                        break;
+                    case Danger:
+                        break;
+                    case Queue:
+                        final Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
+                        msg.obj = scan;
+                        mScanHandler.postDelayed(new Runnable() {
+                            @Override public void run() {
+                                mScanHandler.sendMessage(msg);
+                            }
+                        }, 1000 * 60 * 2);
+                        break;
+                }
+            } catch (IOException | ScanException e) {
+                m.what = UIHandler.SCAN_FAIL;
+                m.obj = scanQueryResult;
+                Log.e(TAG, "error when query", e);
+            }
+            mUIHandler.sendMessage(m);
+        }
+
+        private ScanQueryResult queryScan(ScanQueryResult scanQueryResult) throws
+                ScanException, IOException {
             File file = scanQueryResult.fileInfo.file;
+            String restIp = scanQueryResult.restIp;
             String dataId = scanQueryResult.dataId;
-            //TODO query result
+
+            String url = String.format("https://%s/file/%s", restIp, dataId);
+
+            Response<ScanQueryResult> resp = api.queryScan(url).execute();
+            if (resp.isSuccessful()) {
+                ScanQueryResult scanResult = resp.body();
+                if (scanResult == null) {
+                    throw new ScanException("null scan result returned by queryScan");
+                } else {
+                    //TODO what if this scan complete?
+                    //TODO if not complete, this will still be "inqueue"?
+                    return scanQueryResult.file(file).auto();
+                }
+            } else if (resp.code() == 403) {
+                throw new ScanAPIExceededException();
+            } else { throw new ScanHTTPException(resp); }
         }
 
         private void handleQueue(@Nullable
@@ -193,8 +260,13 @@ public class FileScannerEngine extends BroadcastReceiver {
                     case Danger:
                         break;
                     case Queue:
-                        Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
+                        final Message msg = mScanHandler.obtainMessage(MSG_WHAT_QUERY);
                         msg.obj = scan;
+                        mScanHandler.postDelayed(new Runnable() {
+                            @Override public void run() {
+                                mScanHandler.sendMessage(msg);
+                            }
+                        }, 1000 * 60 * 2);
                         break;
                 }
             } catch (IOException | ScanException e) {

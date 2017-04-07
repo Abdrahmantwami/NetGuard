@@ -8,6 +8,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Url;
 
 /**
  * Created by Carlos on 4/4/17.
@@ -24,7 +25,8 @@ public interface MetaDefenderAPI {
     @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
     Call<ScanQueryResult> uploadScan(@Header("filename") String filename, @Body RequestBody body);
 
-    Call<ScanQueryResult> queryScan();
+    @GET
+    Call<ScanQueryResult> queryScan(@Url String url);
 
 
 }
