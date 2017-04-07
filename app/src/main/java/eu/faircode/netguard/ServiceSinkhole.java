@@ -459,9 +459,11 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             Log.i(TAG, "stop virus protect");
             if (mFileObserver != null) {
                 mFileObserver.stopWatching();
+                mFileObserver = null;
             }
             if (mScannerEngine != null) {
                 mScannerEngine.destroy();
+                mScannerEngine = null;
             }
         }
 
