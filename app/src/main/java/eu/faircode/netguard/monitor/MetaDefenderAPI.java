@@ -26,6 +26,7 @@ public interface MetaDefenderAPI {
     Call<ScanQueryResult> uploadScan(@Header("filename") String filename, @Body RequestBody body);
 
     @GET
+    @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
     Call<ScanQueryResult> queryScan(@Url String url);
 
 
