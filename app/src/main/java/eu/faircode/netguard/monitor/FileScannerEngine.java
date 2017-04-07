@@ -326,23 +326,23 @@ public class FileScannerEngine extends BroadcastReceiver {
             }
         }
 
-        private ScanQueryResult queryScan(ScanQueryResult scanQueryResult) throws
+        private ScanQueryResult queryScan(final ScanQueryResult oldScanQueryResult) throws
                 ScanException, IOException {
-            File file = scanQueryResult.fileInfo.file;
-            String restIp = scanQueryResult.restIp;
-            String dataId = scanQueryResult.dataId;
+            File file = oldScanQueryResult.fileInfo.file;
+            String restIp = oldScanQueryResult.restIp;
+            String dataId = oldScanQueryResult.dataId;
 
             String url = String.format("https://%s/file/%s", restIp, dataId);
 
             Response<ScanQueryResult> resp = api.queryScan(url).execute();
             if (resp.isSuccessful()) {
-                ScanQueryResult scanResult = resp.body();
-                if (scanResult == null) {
+                ScanQueryResult newScanResult = resp.body();
+                if (newScanResult == null) {
                     throw new ScanException("null scan result returned by queryScan");
                 } else {
-                    //TODO what if this scan complete?
+                    // if this scan complete, the result will be non-inqueue
                     //TODO if not complete, this will still be "inqueue"?
-                    return scanQueryResult.file(file).auto();
+                    return newScanResult.file(file).auto();
                 }
             } else if (resp.code() == 403) {
                 throw new ScanAPIExceededException();
