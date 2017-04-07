@@ -1,5 +1,7 @@
 package eu.faircode.netguard.monitor;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.File;
 
 /**
@@ -17,14 +19,14 @@ public class ScanQueryResult {
     }
 
 
-    public ScanResults scanResults;
-    public FileInfo fileInfo;
-    public String FileId;
-    public String dataId;
+    @Expose public ScanResults scanResults;
+    @Expose public FileInfo fileInfo;
+    @Expose public String FileId;
+    @Expose public String dataId;
 
     // for upload scan
-    public String status;// "inqueue"
-    public String restIp;
+    @Expose public String status;// "inqueue"
+    @Expose public String restIp;
 
 
     public ScanQueryResult() {
@@ -80,7 +82,8 @@ public class ScanQueryResult {
             }
         } else if ("inqueue".equals(status)) {
             this.type = Type.Queue;
-        } else { throw new ScanException("unknown type"); }
+        } else { throw new ScanException("unknown type"); }//  this will happen when hash look
+        // found nothing
 
         return this;
     }

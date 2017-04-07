@@ -3,6 +3,8 @@ package eu.faircode.netguard.monitor;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
 
+import java.lang.reflect.Modifier;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -19,6 +21,7 @@ public class RetrofitFactory {
     static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("https://api.metadefender.com/v2/")
             .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create()))
             .client(client)
             .build();
