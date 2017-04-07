@@ -267,6 +267,7 @@ public class FileScannerEngine extends BroadcastReceiver {
 
         public static final int MSG_WHAT_QUEUE = 0;
         public static final int MSG_WHAT_QUERY = 1;
+        public static final int QUERY_DELAY_MILLIS = 1000 * 5;
         private MetaDefenderAPI api = RetrofitFactory.getMetaDefenderAPI();
 
         ScanHandler(final Looper looper) {
@@ -315,12 +316,13 @@ public class FileScannerEngine extends BroadcastReceiver {
                             @Override public void run() {
                                 mScanHandler.sendMessage(msg);
                             }
-                        }, 1000 * 60);
+                        }, QUERY_DELAY_MILLIS);
                         break;
                 }
             } catch (IOException | ScanException e) {
                 m.what = UIHandler.MSG_SCAN_QUERY_FAIL;
                 m.obj = scanQueryResult;
+                e.printStackTrace();
                 Log.e(TAG, "error when query", e);
                 mUIHandler.sendMessage(m);
             }
@@ -341,7 +343,9 @@ public class FileScannerEngine extends BroadcastReceiver {
                     throw new ScanException("null scan result returned by queryScan");
                 } else {
                     // if this scan complete, the result will be non-inqueue
-                    //TODO if not complete, this will still be "inqueue"?
+                    // copy because query result does not contain this
+                    newScanResult.restIp = restIp;
+                    newScanResult.dataId = dataId;
                     return newScanResult.file(file).auto();
                 }
             } else if (resp.code() == 403) {
@@ -395,7 +399,7 @@ public class FileScannerEngine extends BroadcastReceiver {
                             @Override public void run() {
                                 mScanHandler.sendMessage(msg);
                             }
-                        }, 1000 * 60 * 2);
+                        }, QUERY_DELAY_MILLIS);
                         break;
                 }
             } catch (IOException | ScanException e) {

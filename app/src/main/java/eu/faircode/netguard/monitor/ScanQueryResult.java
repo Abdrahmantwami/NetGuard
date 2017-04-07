@@ -21,11 +21,10 @@ public class ScanQueryResult {
 
     @Expose public ScanResults scanResults;
     @Expose public FileInfo fileInfo;
-    @Expose public String FileId;
     @Expose public String dataId;
 
     // for upload scan
-    @Expose public String status;// "inqueue"
+    @Expose public int inQueue = -1;
     @Expose public String restIp;
 
 
@@ -75,12 +74,16 @@ public class ScanQueryResult {
         }
 
         if (this.scanResults != null) {
-            if (this.scanResults.scanAllResultI > 0) {
-                type = Type.Danger;
-            } else if (this.scanResults.scanAllResultI == 0) {
-                type = Type.Safe;
+            if (scanResults.progressPercentage == 100) {
+                if (this.scanResults.scanAllResultI > 0) {
+                    type = Type.Danger;
+                } else if (this.scanResults.scanAllResultI == 0) {
+                    type = Type.Safe;
+                }
+            } else {
+                type = Type.Queue;
             }
-        } else if ("inqueue".equals(status)) {
+        } else if (inQueue > 0) {
             this.type = Type.Queue;
         } else { throw new ScanException("unknown type"); }//  this will happen when hash look
         // found nothing
@@ -89,15 +92,16 @@ public class ScanQueryResult {
     }
 
     public static class ScanResults {
-        public int scanAllResultI;
-        public int totalAvs;
-        public int totalDetectedAvs;
+        @Expose public int scanAllResultI;
+        @Expose public int progressPercentage = -1;
+        @Expose public int totalAvs;
+        @Expose public int totalDetectedAvs;
 
     }
 
     public static class FileInfo {
-        public String displayName;
-        public String fileTypeExtension;
+        @Expose public String displayName;
+        @Expose public String fileTypeExtension;
         public File file;
     }
 }
