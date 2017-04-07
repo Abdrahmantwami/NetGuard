@@ -7,29 +7,82 @@ import java.io.File;
  */
 
 public class ScanQueryResult {
-    public static final int TYPE_LOCAL_SAFE = 0;
-    public static final int TYPE_HASH = 1;
-    public static final int TYPE_UPLOAD = 2;
+    private Type type;
+    public Exception e;
+
+    public enum Type {SkipLarge, SkipSafe, Safe, Queue, Danger, Stub}
+
+    public Type which() {
+        return type;
+    }
+
+
     public ScanResults scanResults;
     public FileInfo fileInfo;
     public String FileId;
     public String dataId;
-    public int type;
+
+    // for upload scan
+    public String status;// "inqueue"
+    public String restIp;
 
 
     public ScanQueryResult() {
     }
 
-    public static ScanQueryResult safeSkipScan(File file) {
+    public static ScanQueryResult skipSafeFile(File file) {
         ScanQueryResult result = new ScanQueryResult();
-        result.type = TYPE_LOCAL_SAFE;
+        result.type = Type.SkipSafe;
         result.fileInfo = new FileInfo();
         result.fileInfo.file = file;
         return result;
     }
 
-    public boolean isSafe() {
-        return this.type == TYPE_LOCAL_SAFE || this.scanResults.scanAllResultI > 0;
+    public static ScanQueryResult skipLargeFile(File file) {
+        ScanQueryResult result = new ScanQueryResult();
+        result.type = Type.SkipLarge;
+        result.fileInfo = new FileInfo();
+        result.fileInfo.file = file;
+        return result;
+    }
+
+    public static ScanQueryResult errorStubQueryResult(Exception e, File file) {
+        ScanQueryResult result = new ScanQueryResult();
+        result.type = Type.Stub;
+        result.e = e;
+        result.file(file);
+        return result;
+    }
+
+    public ScanQueryResult file(File file) {
+        if (this.fileInfo == null) {
+            this.fileInfo = new FileInfo();
+        }
+        fileInfo.file = file;
+        return this;
+    }
+
+    public ScanQueryResult type(Type type) {
+        this.type = type;
+        return this;
+    }
+
+    public ScanQueryResult auto() throws ScanException {
+        if (this.type == Type.SkipSafe || type == Type.SkipLarge) {
+            return this;
+        }
+
+        if (this.scanResults != null) {
+            if (this.scanResults.scanAllResultI > 0) {
+                type = Type.Danger;
+            } else if (this.scanResults.scanAllResultI == 0) {
+                type = Type.Safe;
+            }
+        } else if ("inqueue".equals(status)) {
+            this.type = Type.Queue;
+        } else { throw new ScanException("unknown type"); }
+
+        return this;
     }
 
     public static class ScanResults {
