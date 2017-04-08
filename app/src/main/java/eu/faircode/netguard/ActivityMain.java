@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.net.VpnService;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -41,9 +42,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AlertDialog;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -117,14 +117,10 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "Create version=" + Util.getSelfVersionName(this) + "/" + Util.getSelfVersionCode(this));
+        // Log.i(TAG, "Create version=" + Util.getSelfVersionName(this) + "/" + Util
+        // .getSelfVersionCode(this));
         Util.logExtras(getIntent());
 
-        if (Build.VERSION.SDK_INT < MIN_SDK) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.android);
-            return;
-        }
 
         Util.setTheme(this);
         super.onCreate(savedInstanceState);
@@ -429,10 +425,10 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             adapter.notifyDataSetChanged();
 
         // Ads
-        if (!IAB.isPurchasedAny(this) && Util.hasPlayServices(this))
-            enableAds();
-        else
-            disableAds();
+        //     enableAds();
+        // else
+        //     disableAds();
+        disableAds();
 
         super.onResume();
     }
@@ -453,8 +449,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         super.onConfigurationChanged(newConfig);
 
         disableAds();
-        if (!IAB.isPurchasedAny(this) && Util.hasPlayServices(this))
-            enableAds();
+        // if (!IAB.isPurchasedAny(this) && Util.hasPlayServices(this))
+            // enableAds();
     }
 
     @Override
@@ -950,6 +946,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
     }
 
+    @Deprecated
     private void enableAds() {
         RelativeLayout rlAd = (RelativeLayout) findViewById(R.id.rlAd);
         LinearLayout llAd = (LinearLayout) findViewById(R.id.llAd);
