@@ -602,10 +602,10 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             // Clear expired DNS records
             DatabaseHelper.getInstance(ServiceSinkhole.this).cleanupDns();
 
-            // Check for update
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ServiceSinkhole.this);
-            if (!Util.isPlayStoreInstall(ServiceSinkhole.this) && prefs.getBoolean("update_check", true))
-                checkUpdate();
+            // // Check for update
+            // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ServiceSinkhole.this);
+            // if (!Util.isPlayStoreInstall(ServiceSinkhole.this) && prefs.getBoolean("update_check", true))
+            //     checkUpdate();
         }
 
         private void watchdog(Intent intent) {
