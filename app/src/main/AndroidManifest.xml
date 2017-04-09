@@ -74,13 +74,10 @@
         <activity
             android:name=".ActivityMain"
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name"
+            android:label="@string/entry_firewall"
+            android:parentActivityName=".ActivityEntry"
             android:launchMode="singleTop"
             android:resizeableActivity="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -89,6 +86,9 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ActivityEntry"/>
         </activity>
 
         <activity
@@ -158,6 +158,16 @@
                 <action android:name="eu.faircode.netguard.START_PORT_FORWARD"/>
                 <action android:name="eu.faircode.netguard.STOP_PORT_FORWARD"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ActivityVirus"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/entry_virus"
+            android:parentActivityName=".ActivityEntry"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ActivityEntry"/>
         </activity>
 
         <service

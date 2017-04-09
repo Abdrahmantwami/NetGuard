@@ -42,6 +42,7 @@ public class ActivityEntry extends AppCompatActivity {
                 startActivity(new Intent(this, ActivityMain.class));
                 break;
             case R.id.entry_virus:
+                startActivity(new Intent(this, ActivityVirus.class));
                 break;
             case R.id.entry_web:
                 break;
