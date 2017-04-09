@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -12,5 +13,75 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ActivityEntry">
 
+    <LinearLayout
+        android:id="@+id/entry_firewall"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_btn_white"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:stateListAnimator="@animator/btn_elevation"
+        >
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_security_white_24dp"
+            android:drawableTint="#ff0000"
+            android:gravity="center"
+            android:text="@string/entry_firewall"
+            android:textAppearance="@style/TextMedium"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/entry_virus"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_btn_white"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:stateListAnimator="@animator/btn_elevation"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_cloud_black_24dp"
+            android:drawableTint="#ff0000"
+            android:gravity="center"
+            android:text="@string/entry_virus"
+            android:textAppearance="@style/TextMedium"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/entry_web"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_btn_white"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:stateListAnimator="@animator/btn_elevation"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="8dp"
+            android:drawableStart="@drawable/ic_block_black_24dp"
+            android:drawableTint="#ff0000"
+            android:gravity="center"
+            android:text="@string/entry_web"
+            android:textAppearance="@style/TextMedium"
+            />
+    </LinearLayout>
+</LinearLayout>
