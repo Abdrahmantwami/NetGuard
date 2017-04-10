@@ -57,7 +57,7 @@
   <string name="setting_screen_wifi">亮屏时默认允许Wi-Fi网络</string>
   <string name="setting_screen_other">亮屏时默认允许移动网络</string>
   <string name="setting_whitelist_roaming">默认阻止漫游</string>
-  <string name="setting_options">选项:</string>
+  <string name="setting_options">选项</string>
   <string name="setting_theme">主题: %1$s</string>
   <string name="setting_dark">使用暗色主题</string>
   <string name="setting_install">有新软件安装时通知我</string>
