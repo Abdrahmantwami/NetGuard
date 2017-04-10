@@ -93,12 +93,10 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     private AlertDialog dialogVpn = null;
     private AlertDialog dialogDoze = null;
     private AlertDialog dialogLegend = null;
-    private AlertDialog dialogAbout = null;
 
     private IAB iab = null;
 
     private static final int REQUEST_VPN = 1;
-    private static final int REQUEST_INVITE = 2;
     private static final int REQUEST_LOGCAT = 3;
     public static final int REQUEST_ROAMING = 4;
 
@@ -460,10 +458,6 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             dialogLegend.dismiss();
             dialogLegend = null;
         }
-        if (dialogAbout != null) {
-            dialogAbout.dismiss();
-            dialogAbout = null;
-        }
 
         if (iab != null) {
             iab.unbind();
@@ -488,10 +482,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             } else if (resultCode == RESULT_CANCELED)
                 Toast.makeText(this, R.string.msg_vpn_cancelled, Toast.LENGTH_LONG).show();
 
-        } else if (requestCode == REQUEST_INVITE) {
-            // Do nothing
-
-        } else if (requestCode == REQUEST_LOGCAT) {
+        }  else if (requestCode == REQUEST_LOGCAT) {
             // Send logcat by e-mail
             if (resultCode == RESULT_OK) {
                 Uri target = data.getData();
@@ -680,8 +671,6 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         }
 
         markPro(menu.findItem(R.id.menu_log), ActivityPro.SKU_LOG);
-        if (!Util.hasValidFingerprint(this) || getIntentInvite(this).resolveActivity(getPackageManager()) == null)
-            menu.removeItem(R.id.menu_invite);
 
         return true;
     }
@@ -775,16 +764,9 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                 startActivity(new Intent(this, ActivitySettings.class));
                 return true;
 
-            case R.id.menu_invite:
-                startActivityForResult(getIntentInvite(this), REQUEST_INVITE);
-                return true;
 
             case R.id.menu_legend:
                 menu_legend();
-                return true;
-
-            case R.id.menu_about:
-                menu_about();
                 return true;
 
             default:
@@ -1109,89 +1091,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         WidgetLockdown.updateWidgets(this);
     }
 
-    private void menu_about() {
-        // Create view
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View view = inflater.inflate(R.layout.about, null, false);
-        TextView tvVersionName = (TextView) view.findViewById(R.id.tvVersionName);
-        TextView tvVersionCode = (TextView) view.findViewById(R.id.tvVersionCode);
-        Button btnRate = (Button) view.findViewById(R.id.btnRate);
-        TextView tvLicense = (TextView) view.findViewById(R.id.tvLicense);
-        TextView tvAdmob = (TextView) view.findViewById(R.id.tvAdmob);
 
-        // Show version
-        tvVersionName.setText(Util.getSelfVersionName(this));
-        if (!Util.hasValidFingerprint(this))
-            tvVersionName.setTextColor(Color.GRAY);
-        tvVersionCode.setText(Integer.toString(Util.getSelfVersionCode(this)));
 
-        // Handle license
-        tvLicense.setMovementMethod(LinkMovementMethod.getInstance());
-        tvAdmob.setMovementMethod(LinkMovementMethod.getInstance());
-        tvAdmob.setVisibility(View.GONE);
-
-        // Handle logcat
-        view.setOnClickListener(new View.OnClickListener() {
-            private short tap = 0;
-            private Toast toast = Toast.makeText(ActivityMain.this, "", Toast.LENGTH_SHORT);
-
-            @Override
-            public void onClick(View view) {
-                tap++;
-                if (tap == 7) {
-                    tap = 0;
-                    toast.cancel();
-
-                    Intent intent = getIntentLogcat();
-                    if (intent.resolveActivity(getPackageManager()) != null)
-                        startActivityForResult(intent, REQUEST_LOGCAT);
-
-                } else if (tap > 3) {
-                    toast.setText(Integer.toString(7 - tap));
-                    toast.show();
-                }
-            }
-        });
-
-        // Handle rate
-        btnRate.setVisibility(View.GONE);
-        btnRate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(getIntentRate(ActivityMain.this));
-            }
-        });
-
-        // Show dialog
-        dialogAbout = new AlertDialog.Builder(this)
-                .setView(view)
-                .setCancelable(true)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        dialogAbout = null;
-                    }
-                })
-                .create();
-        dialogAbout.show();
-    }
-
-    private static Intent getIntentInvite(Context context) {
-        Intent intent = new Intent("com.google.android.gms.appinvite.ACTION_APP_INVITE");
-        intent.setPackage("com.google.android.gms");
-        intent.putExtra("com.google.android.gms.appinvite.TITLE", context.getString(R.string.menu_invite));
-        intent.putExtra("com.google.android.gms.appinvite.MESSAGE", context.getString(R.string.msg_try));
-        intent.putExtra("com.google.android.gms.appinvite.BUTTON_TEXT", context.getString(R.string.msg_try));
-        // com.google.android.gms.appinvite.DEEP_LINK_URL
-        return intent;
-    }
-
-    private static Intent getIntentRate(Context context) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
-        if (intent.resolveActivity(context.getPackageManager()) == null)
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + context.getPackageName()));
-        return intent;
-    }
 
     private static Intent getIntentSupport() {
         Intent intent = new Intent(Intent.ACTION_VIEW);

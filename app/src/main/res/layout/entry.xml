@@ -81,6 +81,7 @@
             android:drawableTint="#ff0000"
             android:gravity="center"
             android:text="@string/entry_web"
+            android:enabled="false"
             android:textAppearance="@style/TextMedium"
             />
     </LinearLayout>
