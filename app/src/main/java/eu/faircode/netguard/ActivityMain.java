@@ -84,9 +84,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
     private static final String TAG = "NetGuard.Main";
 
     private boolean running = false;
-    private ImageView ivIcon;
     private ImageView ivQueue;
-    private ImageView ivMetered;
     private SwipeRefreshLayout swipeRefresh;
     private FloatActionSwitch fab;
     private AdapterRule adapter = null;
@@ -145,19 +143,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
         // Action bar
         final View actionView = getLayoutInflater().inflate(R.layout.actionmain, null, false);
-        ivIcon = (ImageView) actionView.findViewById(R.id.ivIcon);
         ivQueue = (ImageView) actionView.findViewById(R.id.ivQueue);
-        ivMetered = (ImageView) actionView.findViewById(R.id.ivMetered);
         fab = (FloatActionSwitch) findViewById(R.id.fab);
-
-        // Icon
-        ivIcon.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                menu_about();
-                return true;
-            }
-        });
 
         // Title
         getSupportActionBar().setTitle(null);
@@ -179,7 +166,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // On/off switch
-        // fab.setImageResource(R.drawable.);
+        fab.setChecked(enabled);
         fab.setOnCheckedChangeListener(new FloatActionSwitch.OnCheckedChangeListener() {
             @Override public void onCheckedChanged(final boolean isChecked) {
                 Log.i(TAG, "Switch=" + isChecked);
@@ -240,21 +227,6 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         if (enabled)
             checkDoze();
 
-        // Network is metered
-        ivMetered.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                int location[] = new int[2];
-                actionView.getLocationOnScreen(location);
-                Toast toast = Toast.makeText(ActivityMain.this, R.string.msg_metered, Toast.LENGTH_LONG);
-                toast.setGravity(
-                        Gravity.TOP | Gravity.LEFT,
-                        location[0] + ivMetered.getLeft(),
-                        Math.round(location[1] + ivMetered.getBottom() - toast.getView().getPaddingTop()));
-                toast.show();
-                return true;
-            }
-        });
 
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(actionView);
@@ -286,19 +258,19 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // Hint usage
-        final LinearLayout llUsage = (LinearLayout) findViewById(R.id.llUsage);
-        Button btnUsage = (Button) findViewById(R.id.btnUsage);
-        boolean hintUsage = prefs.getBoolean("hint_usage", true);
-        llUsage.setVisibility(hintUsage ? View.VISIBLE : View.GONE);
-        btnUsage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_usage", false).apply();
-                llUsage.setVisibility(View.GONE);
-                showHints();
-            }
-        });
-        showHints();
+        // final LinearLayout llUsage = (LinearLayout) findViewById(R.id.llUsage);
+        // Button btnUsage = (Button) findViewById(R.id.btnUsage);
+        // boolean hintUsage = prefs.getBoolean("hint_usage", true);
+        // llUsage.setVisibility(hintUsage ? View.VISIBLE : View.GONE);
+        // btnUsage.setOnClickListener(new View.OnClickListener() {
+        //     @Override
+        //     public void onClick(View view) {
+        //         prefs.edit().putBoolean("hint_usage", false).apply();
+        //         llUsage.setVisibility(View.GONE);
+        //         showHints();
+        //     }
+        // });
+        // showHints();
 
         // Listen for preference changes
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -572,21 +544,21 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
                 "imported".equals(name)) {
             updateApplicationList(null);
 
-            final LinearLayout llWhitelist = (LinearLayout) findViewById(R.id.llWhitelist);
-            boolean screen_on = prefs.getBoolean("screen_on", true);
-            boolean whitelist_wifi = prefs.getBoolean("whitelist_wifi", false);
-            boolean whitelist_other = prefs.getBoolean("whitelist_other", false);
-            boolean hintWhitelist = prefs.getBoolean("hint_whitelist", true);
-            llWhitelist.setVisibility(!(whitelist_wifi || whitelist_other) && screen_on && hintWhitelist ? View.VISIBLE : View.GONE);
+            // final LinearLayout llWhitelist = (LinearLayout) findViewById(R.id.llWhitelist);
+            // boolean screen_on = prefs.getBoolean("screen_on", true);
+            // boolean whitelist_wifi = prefs.getBoolean("whitelist_wifi", false);
+            // boolean whitelist_other = prefs.getBoolean("whitelist_other", false);
+            // boolean hintWhitelist = prefs.getBoolean("hint_whitelist", true);
+            // llWhitelist.setVisibility(!(whitelist_wifi || whitelist_other) && screen_on && hintWhitelist ? View.VISIBLE : View.GONE);
 
         } else if ("manage_system".equals(name)) {
             invalidateOptionsMenu();
             updateApplicationList(null);
 
-            LinearLayout llSystem = (LinearLayout) findViewById(R.id.llSystem);
+            // LinearLayout llSystem = (LinearLayout) findViewById(R.id.llSystem);
             boolean system = prefs.getBoolean("manage_system", false);
             boolean hint = prefs.getBoolean("hint_system", true);
-            llSystem.setVisibility(!system && hint ? View.VISIBLE : View.GONE);
+            // llSystem.setVisibility(!system && hint ? View.VISIBLE : View.GONE);
 
         } else if ("theme".equals(name) || "dark_theme".equals(name))
             recreate();
@@ -613,18 +585,17 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
 
             if (adapter != null)
                 if (intent.hasExtra(EXTRA_CONNECTED) && intent.hasExtra(EXTRA_METERED)) {
-                    ivIcon.setImageResource(Util.isNetworkActive(ActivityMain.this)
-                            ? R.drawable.ic_security_white_24dp
-                            : R.drawable.ic_security_white_24dp_60);
+                    // ivIcon.setImageResource(Util.isNetworkActive(ActivityMain.this)
+                    //         ? R.drawable.ic_security_white_24dp
+                    //         : R.drawable.ic_security_white_24dp_60);
+                    // TODO add progress to fab
                     if (intent.getBooleanExtra(EXTRA_CONNECTED, false)) {
                         if (intent.getBooleanExtra(EXTRA_METERED, false))
                             adapter.setMobileActive();
                         else
                             adapter.setWifiActive();
-                        ivMetered.setVisibility(Util.isMeteredNetwork(ActivityMain.this) ? View.VISIBLE : View.INVISIBLE);
                     } else {
                         adapter.setDisconnected();
-                        ivMetered.setVisibility(View.INVISIBLE);
                     }
                 } else
                     updateApplicationList(null);
@@ -637,7 +608,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             Log.i(TAG, "Received " + intent);
             Util.logExtras(intent);
             int size = intent.getIntExtra(EXTRA_SIZE, -1);
-            ivIcon.setVisibility(size == 0 ? View.VISIBLE : View.GONE);
+            // ivIcon.setVisibility(size == 0 ? View.VISIBLE : View.GONE);
             ivQueue.setVisibility(size == 0 ? View.GONE : View.VISIBLE);
         }
     };
@@ -834,53 +805,6 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void showHints() {
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean hintUsage = prefs.getBoolean("hint_usage", true);
-
-        // Hint white listing
-        final LinearLayout llWhitelist = (LinearLayout) findViewById(R.id.llWhitelist);
-        Button btnWhitelist = (Button) findViewById(R.id.btnWhitelist);
-        boolean whitelist_wifi = prefs.getBoolean("whitelist_wifi", false);
-        boolean whitelist_other = prefs.getBoolean("whitelist_other", false);
-        boolean hintWhitelist = prefs.getBoolean("hint_whitelist", true);
-        llWhitelist.setVisibility(!(whitelist_wifi || whitelist_other) && hintWhitelist && !hintUsage ? View.VISIBLE : View.GONE);
-        btnWhitelist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_whitelist", false).apply();
-                llWhitelist.setVisibility(View.GONE);
-            }
-        });
-
-        // Hint push messages
-        final LinearLayout llPush = (LinearLayout) findViewById(R.id.llPush);
-        Button btnPush = (Button) findViewById(R.id.btnPush);
-        boolean hintPush = prefs.getBoolean("hint_push", true);
-        llPush.setVisibility(hintPush && !hintUsage ? View.VISIBLE : View.GONE);
-        btnPush.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_push", false).apply();
-                llPush.setVisibility(View.GONE);
-            }
-        });
-
-        // Hint system applications
-        final LinearLayout llSystem = (LinearLayout) findViewById(R.id.llSystem);
-        Button btnSystem = (Button) findViewById(R.id.btnSystem);
-        boolean system = prefs.getBoolean("manage_system", false);
-        boolean hintSystem = prefs.getBoolean("hint_system", true);
-        llSystem.setVisibility(!system && hintSystem ? View.VISIBLE : View.GONE);
-        btnSystem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prefs.edit().putBoolean("hint_system", false).apply();
-                llSystem.setVisibility(View.GONE);
-            }
-        });
     }
 
     private void initAds() {
