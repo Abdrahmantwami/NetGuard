@@ -101,6 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/app_admob"
+                android:visibility="gone"
                 android:textAppearance="@style/TextSmall"
                 android:textSize="12sp" />
         </LinearLayout>

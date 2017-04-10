@@ -1128,7 +1128,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         // Handle license
         tvLicense.setMovementMethod(LinkMovementMethod.getInstance());
         tvAdmob.setMovementMethod(LinkMovementMethod.getInstance());
-        tvAdmob.setVisibility(IAB.isPurchasedAny(this) ? View.GONE : View.VISIBLE);
+        tvAdmob.setVisibility(View.GONE);
 
         // Handle logcat
         view.setOnClickListener(new View.OnClickListener() {
@@ -1154,7 +1154,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // Handle rate
-        btnRate.setVisibility(getIntentRate(this).resolveActivity(getPackageManager()) == null ? View.GONE : View.VISIBLE);
+        btnRate.setVisibility(View.GONE);
         btnRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
