@@ -64,7 +64,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -79,15 +78,17 @@ import com.google.android.gms.ads.MobileAds;
 
 import java.util.List;
 
+import eu.faircode.netguard.view.FloatActionSwitch;
+
 public class ActivityMain extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "NetGuard.Main";
 
     private boolean running = false;
     private ImageView ivIcon;
     private ImageView ivQueue;
-    private SwitchCompat swEnabled;
     private ImageView ivMetered;
     private SwipeRefreshLayout swipeRefresh;
+    private FloatActionSwitch fab;
     private AdapterRule adapter = null;
     private MenuItem menuSearch = null;
     private AlertDialog dialogFirst = null;
@@ -146,8 +147,8 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         final View actionView = getLayoutInflater().inflate(R.layout.actionmain, null, false);
         ivIcon = (ImageView) actionView.findViewById(R.id.ivIcon);
         ivQueue = (ImageView) actionView.findViewById(R.id.ivQueue);
-        swEnabled = (SwitchCompat) actionView.findViewById(R.id.swEnabled);
         ivMetered = (ImageView) actionView.findViewById(R.id.ivMetered);
+        fab = (FloatActionSwitch) findViewById(R.id.fab);
 
         // Icon
         ivIcon.setOnLongClickListener(new View.OnLongClickListener() {
@@ -178,9 +179,9 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         });
 
         // On/off switch
-        swEnabled.setChecked(enabled);
-        swEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        // fab.setImageResource(R.drawable.);
+        fab.setOnCheckedChangeListener(new FloatActionSwitch.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(final boolean isChecked) {
                 Log.i(TAG, "Switch=" + isChecked);
                 prefs.edit().putBoolean("enabled", isChecked).apply();
 
@@ -994,7 +995,7 @@ public class ActivityMain extends AppCompatActivity implements SharedPreferences
         // Approve request
         if (intent.hasExtra(EXTRA_APPROVE)) {
             Log.i(TAG, "Requesting VPN approval");
-            swEnabled.toggle();
+            fab.toggle();
         }
 
         if (intent.hasExtra(EXTRA_LOGCAT)) {
