@@ -136,7 +136,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            android:src="@drawable/ic_security_white_24dp"
+            android:src="@drawable/ic_firewall"
             android:stateListAnimator="@animator/fab_elevation"
             android:tint="@color/fas_foreground"
             ads:fabSize="normal"

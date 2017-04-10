@@ -6,16 +6,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <android.support.design.widget.FloatingActionButton
+    <eu.faircode.netguard.view.FloatActionSwitch
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_cloud_black_24dp"
-        app:fabSize="normal"
+        android:src="@drawable/ic_data_protection"
         android:stateListAnimator="@animator/fab_elevation"
-        android:tint="@android:color/white">
+        android:tint="@color/fas_foreground"
+        app:fabSize="normal"
+        app:fas_checked="false"
+        app:fas_colorChecked="#00b64c"
+        app:fas_colorNotCheck="#ef2424"
+        app:fas_strokeColor="#fff"/>
 
-    </android.support.design.widget.FloatingActionButton>
 </android.support.design.widget.CoordinatorLayout>
