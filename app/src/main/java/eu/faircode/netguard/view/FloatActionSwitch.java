@@ -140,6 +140,9 @@ public class FloatActionSwitch extends FloatingActionButton implements Checkable
 
             if (this.getWindowToken() != null && ViewCompat.isLaidOut(this) && this.isShown()) {
                 animationToState(checked);
+            } else {
+                setBackgroundTintList(ColorStateList.valueOf(mChecked ? colorChecked :
+                        colorNotChecked));
             }
 
             // Avoid infinite recursions if setChecked() is called from a listener
