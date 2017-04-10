@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FloatActionSwitch">
+        <attr name="fas_strokeColor" format="color|reference"/>
+        <attr name="fas_strokeSize" format="dimension"/>
+        <attr name="fas_colorChecked" format="color"/>
+        <attr name="fas_colorNotCheck" format="color"/>
+        <attr name="fas_checked" format="boolean"/>
+        <attr name="fas_durationMillis" format="integer"/>
+    </declare-styleable>
+</resources>
