@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Net Security Guard</string>
     <string name="app_description">Net Security Guard provides simple and advanced ways to block access to the internet - no root required. Applications and addresses can individually be allowed or denied access to your Wi-Fi and/or mobile connection.</string>
-    <string name="app_copyright">Copyright \u00A9 2015–2017 by M. Bokhorst (M66B)</string>
+    <string name="app_copyright">Copyright 2017 by Carlos</string>
     <string name="app_android">Net Security Guard requires Android 4.0 or later</string>
     <string name="app_license">By using Net Security Guard, you agree to the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General Public License version 3</a></string>
     <string name="app_first">Great care has been taken to develop and test Net Security Guard,
@@ -166,8 +166,9 @@ however it is impossible to guarantee Net Security Guard will work correctly on 
     <string name="msg_packages">%1$d allowed, %2$d blocked</string>
     <string name="msg_hosts">%1$d allowed, %2$d blocked, %3$d hosts</string>
     <string name="msg_waiting">Waiting for event</string>
-    <string name="msg_disabled">Net Security Guard is disabled, use the switch above to enable Net Security Guard</string>
-    <string name="msg_revoked">Net Security Guard has been disabled, likely by using another VPN based application</string>
+    <string name="msg_disabled">Network Firewall is disabled, use the button on the bottom right to
+        enable</string>
+    <string name="msg_revoked">Network Firewall has been disabled, likely by using another VPN based application</string>
     <string name="msg_installed">\'%1$s\' installed</string>
     <string name="msg_installed_n">Has been installed</string>
     <string name="msg_access">%1$s attempted internet access</string>

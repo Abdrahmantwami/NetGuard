@@ -3,13 +3,13 @@
 <resources>
   <string name="app_name">网络安全卫士</string>
   <string name="app_description">网络安全卫士 提供简便且专业的方式阻止网络访问 - 无需 root. 可单独允许或拒绝应用和地址访问您的 Wi-Fi 和/或移动数据连接.</string>
-  <string name="app_copyright">版权所有 \u00A9 2015–2017 by M. Bokhorst (M66B)</string>
+  <string name="app_copyright">版权所有 \u00A9 2017 by Carlos</string>
   <string name="app_android">网络安全卫士仅适用于运行Android 4.0 或更高版本的设备</string>
   <string name="app_license">使用网络安全卫士即表明您接受 <a href="http://www.gnu.org/licenses/gpl.txt">GNU通用公共许可协议第三版</a></string>
   <string name="app_first">开发者在开发和测试网络安全卫士过程中已悉心尽力,
 但开发者无法确保本软件在所有设备上均可正常运行.
 \n\n使用网络安全卫士即表明您接受 <a href="http://www.gnu.org/licenses/gpl.txt">GNU通用公共许可协议第三版</a></string>
-  <string name="app_admob">网络安全卫士 使用 Google AdMob 广告服务. 您可在此查阅 AdMob 隐私权政策 <a href="https://www.google.com/intl/en/policies/privacy/">here</a>.</string>
+  <string name="app_admob">您可在此查阅 AdMob 隐私权政策 <a href="https://www.google.com/intl/en/policies/privacy/">here</a>.</string>
   <string name="app_agree">同意</string>
   <string name="app_disagree">拒绝</string>
   <string name="entry_firewall">网络防护</string>
@@ -147,8 +147,8 @@
   <string name="msg_packages">%1$d 已允许, %2$d 已拦截</string>
   <string name="msg_hosts">%1$d 已允许, %2$d 已拦截, %3$d hosts</string>
   <string name="msg_waiting">等待事件</string>
-  <string name="msg_disabled">网络安全卫士已被停用, 请使用上方的开关启用网络安全卫士</string>
-  <string name="msg_revoked">网络安全卫士已被停用, 可能是由于您启动了另一个基于VPN的应用</string>
+  <string name="msg_disabled">网络防护已被停用, 请使用右下角的开关启用</string>
+  <string name="msg_revoked">网络防护已被停用, 可能是由于您启动了另一个基于VPN的应用</string>
   <string name="msg_installed">\'%1$s\' 已安装</string>
   <string name="msg_installed_n">已安装</string>
   <string name="msg_access">%1$s 尝试进行网络连接</string>
@@ -195,7 +195,7 @@
   <string name="msg_system">您可在高级选项中启用管理系统应用</string>
   <string name="msg_issue">请具体描述问题及问题发生的时间:</string>
   <string name="msg_vpn_cancelled">VPN 连接已取消\n您是否对另一个 VPN 设置了始终启用?</string>
-  <string name="msg_on">Powering down your device with NetGuard enabled, will automatically start NetGuard on powering up your device</string>
+  <string name="msg_on">如果您在启用安全卫士网络防护时时关机，下次开机时将会自动启用安全卫士网络防护</string>
   <string name="title_lockdown_enabled">Traffic is locked down</string>
   <string name="title_unmetered_allowed">已允许非按流量计费的网络数据</string>
   <string name="title_unmetered_blocked">已阻止非按流量计费的网络数据</string>
