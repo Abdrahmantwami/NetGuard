@@ -1,7 +1,9 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="?attr/colorPrimary"
+    android:minHeight="48dp"
     android:orientation="horizontal">
 
     <ImageView
@@ -11,6 +13,14 @@
         android:layout_gravity="center_vertical"
         android:visibility="gone"
         android:src="@drawable/ic_security_white_24dp" />
+
+    <TextView
+        style="@style/TextAppearance.AppCompat.Title.Inverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/entry_firewall"
+        />
 
     <ImageView
         android:id="@+id/ivQueue"
