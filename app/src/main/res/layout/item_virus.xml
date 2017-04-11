@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="@drawable/bg_btn_white_red_square"
+    android:minHeight="72dp"
+    android:orientation="vertical"
+    android:stateListAnimator="@animator/btn_elevation">
+
+
+    <TextView
+        android:id="@+id/textTime"
+        style="@style/TextAppearance.AppCompat.Notification.Time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_title_red"
+        android:padding="8dp"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:text="@string/virus_msg_title_threat"
+        android:textColor="@android:color/white"
+        />
+
+
+    <TextView
+        android:id="@+id/textTitle"
+        style="@style/TextAppearance.AppCompat.Notification.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="发现一个严重威胁，点此进行处理"
+        />
+
+    <TextView
+        android:id="@+id/textInfo"
+        style="@style/TextAppearance.AppCompat.Notification.Info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="2dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:text="File: Downloads/virus.exe"
+        />
+
+    <TextView
+        android:id="@+id/textInfo2"
+        style="@style/TextAppearance.AppCompat.Notification.Line2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:text="13个扫描引擎标记为有害软件，威胁级别 高"/>
+</LinearLayout>

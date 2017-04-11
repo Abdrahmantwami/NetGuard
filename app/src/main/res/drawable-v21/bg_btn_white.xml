@@ -4,11 +4,11 @@
     >
     <item>
         <selector>
-            <item android:drawable="@color/textColorPrimaryInverse"/>
+            <item android:drawable="@color/colorWhite"/>
             <item android:state_pressed="true">
                 <shape android:shape="rectangle">
                     <solid android:color="@color/colorPressed"/>
-                    <corners android:radius="2dp"/>
+                    <corners android:radius="@dimen/card_radius"/>
                 </shape>
             </item>
         </selector>

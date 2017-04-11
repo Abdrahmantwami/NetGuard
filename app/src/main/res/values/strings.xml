@@ -15,6 +15,9 @@ however it is impossible to guarantee Net Security Guard will work correctly on 
     <string name="entry_virus">Download Protect</string>
     <string name="entry_web">Web Protect</string>
 
+    <string name="menu_scan">Custom Scan</string>
+    <string name="menu_scan_settings">Settings</string>
+
     <string name="menu_search">Search for application</string>
     <string name="menu_filter">Filter applications</string>
     <string name="menu_app_user">Show user applications</string>
@@ -292,6 +295,8 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="title_pro_ads">Buying any pro feature will disable all advertisements</string>
     <string name="title_pro_challenge">Challenge</string>
     <string name="title_pro_reponse">Response</string>
+
+    <string name="virus_msg_title_threat">Threat Alert • 1 hour ago</string>
 
     <string-array name="themeNames">
         <item>teal/orange</item>

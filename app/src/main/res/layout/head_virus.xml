@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_btn_white"
+    android:minHeight="72dp"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:translationZ="4dp">
+
+
+    <TextView
+        android:id="@+id/textTime"
+        style="@style/TextAppearance.AppCompat.Notification.Time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingStart="4dp"
+        android:paddingTop="8dp"
+        android:text="实时防护已开启"
+        android:textColor="@android:color/holo_red_light"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/textTitle"
+                style="@style/TextAppearance.AppCompat.Notification.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="反病毒引擎已守护您235天"
+                />
+
+            <TextView
+                android:id="@+id/textInfo"
+                style="@style/TextAppearance.AppCompat.Notification.Info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="2dp"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:text="最近扫描文件: Downloads/virus.exe"
+                />
+
+            <TextView
+                android:id="@+id/textInfo2"
+                style="@style/TextAppearance.AppCompat.Notification.Line2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:paddingEnd="8dp"
+                android:paddingStart="8dp"
+                android:paddingTop="2dp"
+                android:text="累计已扫描文件 30，正在扫描 0，已处理 2"/>
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/statusImage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_security_error"
+            />
+    </LinearLayout>
+</LinearLayout>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 /**
@@ -24,6 +25,11 @@ public class ActivityVirus extends AppCompatActivity implements SharedPreference
 
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        AdapterVirus adapterVirus = new AdapterVirus(this);
+        recyclerView.setAdapter(adapterVirus);
     }
 
 

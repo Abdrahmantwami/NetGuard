@@ -46,4 +46,9 @@
     <color name="colorPressed">#22b5b5b5</color>
     <color name="textColorPrimaryInverse">#ffffff</color>
 
+    <color name="colorYellow">#f1e53a</color>
+    <color name="colorRed">#ffff4444</color>
+    <color name="colorWhite">#fff</color>
+    <color name="colorBlack">#000</color>
+
 </resources>

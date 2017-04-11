@@ -270,4 +270,10 @@
     <item>UDP</item>
     <item>TCP</item>
   </string-array>
+  <string name="virus_msg_title_threat">威胁警报 • 1 小时前</string>
+  <string name="msg_virus_protect_queue_one">正在扫描一个潜在的威胁…</string>
+  <string name="msg_virus_protect_safe">病毒防护已开启，尚未发现任何威胁</string>
+  <string name="msg_virus_protect_queue_some">正在扫描威胁…</string>
+  <string name="msg_virus_protect_stats">已扫描 %1$d，正在扫描 %2$d，已处理 %3$d</string>
+  <string name="msg_virus_protect_danger">发现了%1$d个威胁，点此进行处理</string>
 </resources>
