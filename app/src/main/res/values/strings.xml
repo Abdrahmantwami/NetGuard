@@ -165,22 +165,23 @@ however it is impossible to guarantee Net Security Guard will work correctly on 
     <string-array name="default_wifi_home"></string-array>
 
     <string name="msg_sure">Are you sure?</string>
-    <string name="msg_started">Enforcing rules</string>
+    <string name="msg_started">Firewall is enabled</string>
     <string name="msg_packages">%1$d allowed, %2$d blocked</string>
     <string name="msg_hosts">%1$d allowed, %2$d blocked, %3$d hosts</string>
     <string name="msg_waiting">Waiting for event</string>
-    <string name="msg_disabled">Network Firewall is disabled, use the button on the bottom right to
+    <string name="msg_disabled">Firewall is disabled, use the button on the bottom right to
         enable</string>
-    <string name="msg_revoked">Network Firewall has been disabled, likely by using another VPN based application</string>
+    <string name="msg_revoked">Firewall has been disabled, likely by using another VPN based application</string>
     <string name="msg_installed">\'%1$s\' installed</string>
     <string name="msg_installed_n">Has been installed</string>
     <string name="msg_access">%1$s attempted internet access</string>
     <string name="msg_access_n">Attempted internet access</string>
     <string name="msg_completed">Action completed</string>
-    <string name="msg_vpn">Net Security Guard uses a local VPN to filter internet traffic.
+    <string name="msg_vpn">Firewall uses a local VPN to filter internet traffic.
 For this reason, please allow a VPN connection in the next dialog.
 Your internet traffic is not being sent to a remote VPN server.</string>
-    <string name="msg_autostart">Net Security Guard could not start automatically. This is likely because of a bug in your Android version.</string>
+    <string name="msg_autostart">Firewall could not start automatically. This is likely because of a
+        bug in your Android version.</string>
     <string name="msg_error">An unexpected error has occurred: \'%s\'</string>
     <string name="msg_start_failed">Android refused to start the VPN service at this moment. This is likely because of a bug in your Android version.</string>
     <string name="msg_try">Try Net Security Guard</string>

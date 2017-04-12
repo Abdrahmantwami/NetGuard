@@ -143,7 +143,7 @@
   <string name="summary_stats">在状态栏通知中显示网速示意图</string>
   <string-array name="default_wifi_home"></string-array>
   <string name="msg_sure">是否确认?</string>
-  <string name="msg_started">规则加载中</string>
+  <string name="msg_started">防火墙已启用</string>
   <string name="msg_packages">%1$d 已允许, %2$d 已拦截</string>
   <string name="msg_hosts">%1$d 已允许, %2$d 已拦截, %3$d hosts</string>
   <string name="msg_waiting">等待事件</string>
@@ -157,7 +157,7 @@
   <string name="msg_vpn">网络安全卫士 使用一个本地 VPN 对网络流量进行过滤.
 因此请在下一个对话框中允许建立网络连接.
 您的网络流量不会被导向任何远程 VPN 服务器.</string>
-  <string name="msg_autostart">由于您使用的 Android 版本存在 bug, 网络安全卫士 无法开机自启.</string>
+  <string name="msg_autostart">由于您使用的 Android 版本存在 bug, 网络防护 无法开机自启.</string>
   <string name="msg_error">发生未知错误: \'%s\'</string>
   <string name="msg_start_failed">Android 拒绝启动 VPN 服务. 这可能是由您当前使用的 Android 版本中的 bug 导致.</string>
   <string name="msg_try">试用网络安全卫士</string>
