@@ -1,5 +1,6 @@
 package eu.faircode.netguard;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -7,6 +8,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+
+import eu.faircode.netguard.monitor.FileScannerService;
+import eu.faircode.netguard.view.FloatActionSwitch;
 
 /**
  * Created by Carlos on 4/9/17.
@@ -23,13 +27,23 @@ public class ActivityVirus extends AppCompatActivity implements SharedPreference
         super.onCreate(savedInstanceState);
         setContentView(R.layout.virus);
 
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         AdapterVirus adapterVirus = new AdapterVirus(this);
         recyclerView.setAdapter(adapterVirus);
+
+        FloatActionSwitch fab = (FloatActionSwitch) findViewById(R.id.fab);
+        fab.setOnCheckedChangeListener(new FloatActionSwitch.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(final boolean isChecked) {
+                prefs.edit().putBoolean("enabled_virus", isChecked).apply();
+                if (isChecked) { ActivityVirus.this.startVirusService();} else {
+                    ActivityVirus.this.pauseVirusService();
+                }
+            }
+        });
     }
 
 
@@ -46,5 +60,17 @@ public class ActivityVirus extends AppCompatActivity implements SharedPreference
 
 
         super.onDestroy();
+    }
+
+    private void startVirusService() {
+        Intent intent = new Intent(this, FileScannerService.class);
+        intent.putExtra(FileScannerService.EXTRA_COMMAND, FileScannerService.Command.RUN);
+        startService(intent);
+    }
+
+    private void pauseVirusService() {
+        Intent intent = new Intent(this, FileScannerService.class);
+        intent.putExtra(FileScannerService.EXTRA_COMMAND, FileScannerService.Command.PAUSE);
+        startService(intent);
     }
 }

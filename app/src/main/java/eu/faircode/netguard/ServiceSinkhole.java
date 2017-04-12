@@ -105,9 +105,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import eu.faircode.netguard.monitor.DownloadFileObserver;
-import eu.faircode.netguard.monitor.FileScannerEngine;
-
 public class ServiceSinkhole extends VpnService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "NetGuard.Service";
 
@@ -168,14 +165,10 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
     private static final int MSG_PACKET = 4;
     private static final int MSG_USAGE = 5;
 
-    private DownloadFileObserver mFileObserver;
-    private FileScannerEngine mScannerEngine;
-
     private enum State {none, waiting, enforcing, stats}
 
     public enum Command {
         run, start, reload, stop, stats, set, householding, watchdog,
-        startVirusProtect, stopVirusProtect,
     }
 
     private static volatile PowerManager.WakeLock wlInstance = null;
@@ -368,12 +361,6 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
 
             try {
                 switch (cmd) {
-                    case startVirusProtect:
-                        startVirusProtect();
-                        break;
-                    case stopVirusProtect:
-                        stopVirusProtect();
-                        break;
                     case run:
                         run();
                         break;
@@ -439,31 +426,6 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
                     }
                 } else
                     showErrorNotification(ex.toString());
-            }
-        }
-
-        private void startVirusProtect() {
-            Log.i(TAG, "start virus protect");
-            if (mFileObserver == null) {
-                mScannerEngine = new FileScannerEngine(getApplicationContext());
-                mScannerEngine.init();
-
-                mFileObserver = new DownloadFileObserver(getApplicationContext());
-                mFileObserver.startWatching();
-            } else {
-                Log.e(TAG, "try start virus protect but have started");
-            }
-        }
-
-        private void stopVirusProtect() {
-            Log.i(TAG, "stop virus protect");
-            if (mFileObserver != null) {
-                mFileObserver.stopWatching();
-                mFileObserver = null;
-            }
-            if (mScannerEngine != null) {
-                mScannerEngine.destroy();
-                mScannerEngine = null;
             }
         }
 
@@ -2278,11 +2240,6 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
 
         commandHandler.queue(intent);
 
-        //TODO remove this code, add another control entry for this intent
-        Intent virusProtectIntent = new Intent(this, ServiceSinkhole.class);
-        virusProtectIntent.putExtra(EXTRA_COMMAND, Command.startVirusProtect);
-        commandHandler.queue(virusProtectIntent);
-
         return START_STICKY;
     }
 
@@ -2406,7 +2363,8 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         TypedValue tv = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(isLockedDown(last_metered) ? R.drawable.ic_lock_outline_white_24dp : R.drawable.ic_security_white_24dp)
+                .setSmallIcon(isLockedDown(last_metered) ? R.drawable.ic_lock_outline_white_24dp
+                        : R.drawable.ic_firewall)
                 .setContentIntent(pi)
                 .setColor(tv.data)
                 .setOngoing(true)
@@ -2415,12 +2373,12 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             builder.setContentTitle(getString(R.string.msg_started));
         else
-            builder.setContentTitle(getString(R.string.app_name))
+            builder.setContentTitle(getString(R.string.entry_firewall))
                     .setContentText(getString(R.string.msg_started));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setCategory(Notification.CATEGORY_STATUS)
-                    .setVisibility(Notification.VISIBILITY_SECRET)
+            builder.setCategory(Notification.CATEGORY_SERVICE)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .setPriority(Notification.PRIORITY_MIN);
         }
 
@@ -2458,7 +2416,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         TypedValue tv = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_security_white_24dp)
+                .setSmallIcon(R.drawable.ic_firewall)
                 .setContentIntent(pi)
                 .setColor(tv.data)
                 .setOngoing(true)
@@ -2467,7 +2425,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             builder.setContentTitle(getString(R.string.msg_waiting));
         else
-            builder.setContentTitle(getString(R.string.app_name))
+            builder.setContentTitle(getString(R.string.entry_firewall))
                     .setContentText(getString(R.string.msg_waiting));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -2487,7 +2445,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         getTheme().resolveAttribute(R.attr.colorOff, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_error_white_24dp)
-                .setContentTitle(getString(R.string.app_name))
+                .setContentTitle(getString(R.string.entry_firewall))
                 .setContentText(getString(R.string.msg_revoked))
                 .setContentIntent(pi)
                 .setColor(tv.data)
@@ -2514,7 +2472,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         getTheme().resolveAttribute(R.attr.colorOff, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_error_white_24dp)
-                .setContentTitle(getString(R.string.app_name))
+                .setContentTitle(getString(R.string.entry_firewall))
                 .setContentText(getString(R.string.msg_autostart))
                 .setContentIntent(pi)
                 .setColor(tv.data)
@@ -2540,7 +2498,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         getTheme().resolveAttribute(R.attr.colorOff, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_error_white_24dp)
-                .setContentTitle(getString(R.string.app_name))
+                .setContentTitle(getString(R.string.entry_firewall))
                 .setContentText(getString(R.string.msg_error, message))
                 .setContentIntent(pi)
                 .setColor(tv.data)
@@ -2584,7 +2542,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             builder.setContentTitle(name)
                     .setContentText(getString(R.string.msg_access_n));
         else
-            builder.setContentTitle(getString(R.string.app_name))
+            builder.setContentTitle(getString(R.string.entry_firewall))
                     .setContentText(getString(R.string.msg_access, name));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -2643,8 +2601,8 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         TypedValue tv = new TypedValue();
         getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_security_white_24dp)
-                .setContentTitle(getString(R.string.app_name))
+                .setSmallIcon(R.drawable.ic_firewall)
+                .setContentTitle(getString(R.string.entry_firewall))
                 .setContentText(getString(R.string.msg_update))
                 .setContentIntent(pi)
                 .setColor(tv.data)

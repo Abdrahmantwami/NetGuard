@@ -60,9 +60,13 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -82,10 +86,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import eu.faircode.netguard.monitor.ScanException;
+import eu.faircode.netguard.monitor.ScanHashException;
 
 public class Util {
     private static final int NETWORK_TYPE_TD_SCDMA = 17;
@@ -992,5 +1000,34 @@ public class Util {
                 }
         }
         return builder;
+    }
+
+    public static String sha1(final File file) throws ScanException {
+        try {
+            final MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+
+            InputStream is = null;
+            try {
+                is = new BufferedInputStream(new FileInputStream(file));
+                final byte[] buffer = new byte[1024];
+                for (int read = 0; (read = is.read(buffer)) != -1; ) {
+                    messageDigest.update(buffer, 0, read);
+                }
+            } catch (IOException e) {
+                if (is != null) {
+                    is.close();
+                }
+                throw e;
+            }
+
+            // Convert the byte to hex format
+            Formatter formatter = new Formatter();
+            for (final byte b : messageDigest.digest()) {
+                formatter.format("%02x", b);
+            }
+            return formatter.toString();
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ScanHashException(e);
+        }
     }
 }

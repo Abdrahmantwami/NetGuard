@@ -180,6 +180,10 @@
         </service>
 
         <service
+            android:name=".monitor.FileScannerService"
+            android:label="@string/entry_firewall"/>
+
+        <service
             android:name=".ServiceExternal"
             android:label="@string/app_name">
             <intent-filter>

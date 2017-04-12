@@ -1,18 +1,24 @@
 package eu.faircode.netguard.monitor;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.Process;
+import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -20,68 +26,75 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.TypedValue;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
 
 import eu.faircode.netguard.ActivityMain;
 import eu.faircode.netguard.BuildConfig;
 import eu.faircode.netguard.R;
+import eu.faircode.netguard.Receiver;
+import eu.faircode.netguard.ServiceSinkhole;
+import eu.faircode.netguard.Util;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Response;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * Created by Carlos on 4/4/17.
  */
 
-public class FileScannerEngine extends BroadcastReceiver {
-    private static final String TAG = "FileScannerEngine";
-    private final Context mContext;
+public class FileScannerService extends Service {
+    private static final String TAG = "FileScannerService";
     private HandlerThread scanThread;
     private ScanHandler mScanHandler;
     private UIHandler mUIHandler;
+    public static final String EXTRA_COMMAND = "Command";
+
+    public enum Command {RUN, PAUSE}
+
+    @Override public int onStartCommand(final Intent oriIntent, final int flags, final int
+            startId) {
+        Intent intent = oriIntent;
 
 
-    public FileScannerEngine(Context context) {
-        mContext = context;
+        // Handle service restart
+        if (intent == null) {
+            Log.i(TAG, "Restart");
 
+            // Recreate intent
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean enabled = prefs.getBoolean("enabled_virus", false);
+
+            intent = new Intent(this, ServiceSinkhole.class);
+            intent.putExtra(EXTRA_COMMAND, enabled ? Command.RUN :
+                    Command.PAUSE);
+        }
+
+        Command c = (Command) intent.getSerializableExtra(EXTRA_COMMAND);
+
+        switch (c) {
+            case RUN:
+                run();
+                break;
+            case PAUSE:
+                pause();
+                break;
+        }
+
+        return START_STICKY;
     }
 
-    private static String sha1(final File file) throws ScanException {
-        try {
-            final MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+    @Override public void onCreate() {
+        Util.setTheme(this);
 
-            InputStream is = null;
-            try {
-                is = new BufferedInputStream(new FileInputStream(file));
-                final byte[] buffer = new byte[1024];
-                for (int read = 0; (read = is.read(buffer)) != -1; ) {
-                    messageDigest.update(buffer, 0, read);
-                }
-            } catch (IOException e) {
-                if (is != null) {
-                    is.close();
-                }
-                throw e;
-            }
+        super.onCreate();
 
-            // Convert the byte to hex format
-            Formatter formatter = new Formatter();
-            for (final byte b : messageDigest.digest()) {
-                formatter.format("%02x", b);
-            }
-            return formatter.toString();
-        } catch (NoSuchAlgorithmException | IOException e) {
-            throw new ScanHashException(e);
-        }
+
+        LocalBroadcastManager.getInstance(FileScannerService.this).registerReceiver(mReceiver, new
+                IntentFilter
+                (DownloadFileObserver.ACTION_SCAN));
+        mUIHandler = new UIHandler(FileScannerService.this.getMainLooper());
+
     }
 
     private void enqueueFile(@NonNull File file) {
@@ -90,38 +103,67 @@ public class FileScannerEngine extends BroadcastReceiver {
         mScanHandler.sendMessage(m);
     }
 
-    public void init() {
-        scanThread = new HandlerThread(mContext.getString(R.string.app_name) +
+    public void run() {
+        scanThread = new HandlerThread(FileScannerService.this.getString(R.string.app_name) +
                 " scan", Process.THREAD_PRIORITY_FOREGROUND);
         scanThread.start();
-
         mScanHandler = new ScanHandler(scanThread.getLooper());
-        mUIHandler = new UIHandler(mContext.getMainLooper());
 
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(this, new IntentFilter
-                (DownloadFileObserver.ACTION_SCAN));
-        Log.i(TAG, " scan engine start");
+
+        Log.i(TAG, " scan engine run");
         mUIHandler.openNotification();
+
+        if (mFileObserver == null) {
+            mFileObserver = new DownloadFileObserver(getApplicationContext());
+        }
+        mFileObserver.startWatching();
     }
 
-    public void destroy() {
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(this);
+    private DownloadFileObserver mFileObserver;
+
+
+    //TODO pause monitor
+    public void pause() {
+        if (mFileObserver != null) {
+            mFileObserver.stopWatching();
+        }
         scanThread.quit();
         mUIHandler.closeNotification();
         Log.i(TAG, "scan engine shutdown");
     }
 
-    @Override public void onReceive(final Context context, final Intent intent) {
-        Log.i(TAG, String.format("FileScannerEngine receive intent: %s", intent));
-        if (intent != null && intent.getAction().equals(DownloadFileObserver.ACTION_SCAN)) {
-            File file = (File) intent.getSerializableExtra("file");
-            if (file == null) {
-                Log.e(TAG, "onReceive null file extra");
-            } else {
-                enqueueFile(file);
+    @Override public void onDestroy() {
+        LocalBroadcastManager.getInstance(FileScannerService.this).unregisterReceiver(mReceiver);
+
+        super.onDestroy();
+    }
+
+    private BroadcastReceiver mReceiver = new Receiver() {
+        @Override public void onReceive(final Context context, final Intent intent) {
+            Log.i(TAG, String.format("FileScannerService receive intent: %s", intent));
+            if (intent != null && intent.getAction().equals(DownloadFileObserver.ACTION_SCAN)) {
+                File file = (File) intent.getSerializableExtra("file");
+                if (file == null) {
+                    Log.e(TAG, "onReceive null file extra");
+                } else {
+                    enqueueFile(file);
+                }
             }
         }
+    };
+
+    @Nullable @Override public IBinder onBind(final Intent intent) {
+        return new Callback();
     }
+
+    private class Callback extends Binder {
+        @Override
+        protected boolean onTransact(final int code, final Parcel data, final Parcel reply, final
+        int flags) throws RemoteException {
+            return super.onTransact(code, data, reply, flags);
+        }
+    }
+
 
     private class UIHandler extends Handler {
         public static final int MSG_OPEN_NOTIFICATION = 0;
@@ -151,24 +193,27 @@ public class FileScannerEngine extends BroadcastReceiver {
 
 
         public static final int NOTIFICATION_VIRUS = 1024;
+        public static final int NOTIFY_RUN = 11;
+        public static final int NOTIFY_PAUSE = 12;
 
         private void updateVirusNotification() {
             if (!notificationEnable) { return; }
-            NotificationManager nm = (NotificationManager) mContext.getSystemService
-                    (NOTIFICATION_SERVICE);
-            Notification notification = getVirusNotification(sum, danger, solved, queue);
-            nm.notify(NOTIFICATION_VIRUS, notification);
+            FileScannerService.this.startForeground(NOTIFY_RUN, getVirusNotification(sum, danger,
+                    solved, queue));
         }
 
         private Notification getVirusNotification(int sum, int danger, int solved, int queue) {
-            Intent virus = new Intent(mContext, ActivityMain.class);//TODO create new act
-            PendingIntent pi = PendingIntent.getActivity(mContext, 0, virus, PendingIntent
-                    .FLAG_UPDATE_CURRENT);
+            Intent virus = new Intent(FileScannerService.this, ActivityMain.class);//TODO create new
+            // act
+            PendingIntent pi = PendingIntent.getActivity(FileScannerService.this, 0, virus,
+                    PendingIntent
+                            .FLAG_UPDATE_CURRENT);
 
             TypedValue tv = new TypedValue();
-            mContext.getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
-                    .setSmallIcon(R.drawable.ic_security_white_24dp)
+            FileScannerService.this.getTheme().resolveAttribute(R.attr.colorPrimary, tv, true);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder
+                    (FileScannerService.this)
+                    .setSmallIcon(R.drawable.ic_data_protection)
                     .setContentIntent(pi)
                     .setColor(tv.data)
                     .setOngoing(true)//TODO allow dismiss
@@ -180,25 +225,27 @@ public class FileScannerEngine extends BroadcastReceiver {
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                builder.setContentTitle(mContext.getString(R.string.app_name));
+                builder.setContentTitle(FileScannerService.this.getString(R.string.entry_virus));
             }
 
 
             String s1;
-            final String s2 = mContext.getString(R.string.msg_virus_protect_stats, sum, queue,
+            final String s2 = FileScannerService.this.getString(R.string.msg_virus_protect_stats,
+                    sum, queue,
                     solved);
 
             if (danger > 0) {
-                s1 = mContext.getString(R.string.msg_virus_protect_danger, danger);
+                s1 = FileScannerService.this.getString(R.string.msg_virus_protect_danger, danger);
                 builder.setPriority(Notification.PRIORITY_MAX);
                 //TODO change icon to red, or !,  add sound
 
             } else if (queue > 0) {
-                s1 = mContext.getString(queue == 1 ? R.string.msg_virus_protect_queue_one : R.string
+                s1 = FileScannerService.this.getString(queue == 1 ? R.string
+                        .msg_virus_protect_queue_one : R.string
                         .msg_virus_protect_queue_some);
                 builder.setPriority(Notification.PRIORITY_DEFAULT);
             } else {
-                s1 = mContext.getString(R.string.msg_virus_protect_safe);
+                s1 = FileScannerService.this.getString(R.string.msg_virus_protect_safe);
                 builder.setPriority(Notification.PRIORITY_MIN);
             }
 
@@ -227,10 +274,8 @@ public class FileScannerEngine extends BroadcastReceiver {
                     notificationEnable = true;
                     break;
                 case MSG_CLOSE_NOTIFICATION:
+                    FileScannerService.this.stopForeground(true);
                     notificationEnable = false;
-                    NotificationManager nm = (NotificationManager) mContext.getSystemService
-                            (NOTIFICATION_SERVICE);
-                    nm.cancel(NOTIFICATION_VIRUS);
                     break;
                 case MSG_SCAN_QUERY_SAFE:
                     queue--;
@@ -353,8 +398,7 @@ public class FileScannerEngine extends BroadcastReceiver {
             } else { throw new ScanHTTPException(resp); }
         }
 
-        private void handleQueue(@Nullable
-                                 final File file) {
+        private void handleQueue(@Nullable final File file) {
             Log.i(TAG, String.format(" handleQueue file: %s", file));
 
             if (file == null) {
@@ -412,7 +456,7 @@ public class FileScannerEngine extends BroadcastReceiver {
 
         @Nullable
         private ScanQueryResult hashScan(File file) throws ScanException, IOException {
-            String sha1 = sha1(file);
+            String sha1 = Util.sha1(file);
 
             // official test case
             if (BuildConfig.DEBUG) {
