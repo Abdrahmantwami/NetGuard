@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import eu.faircode.netguard.monitor.FileScannerService;
 import eu.faircode.netguard.view.FloatActionSwitch;
@@ -60,6 +62,24 @@ public class ActivityVirus extends AppCompatActivity implements SharedPreference
 
 
         super.onDestroy();
+    }
+
+    @Override public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.virus, menu);
+        return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menuScan:
+
+                return true;
+            case R.id.menuScanSettings:
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void startVirusService() {
