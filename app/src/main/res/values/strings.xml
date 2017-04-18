@@ -297,7 +297,26 @@ Your internet traffic is not being sent to a remote VPN server.</string>
     <string name="title_pro_challenge">Challenge</string>
     <string name="title_pro_reponse">Response</string>
 
-    <string name="virus_msg_title_threat">Threat Alert • 1 hour ago</string>
+    <!--Threat Alert • 1 hour ago-->
+    <string name="virus_msg_time_danger">Threat Alert • %1$s</string>
+    <string name="virus_msg_time_suspicious">Suspicious Alert • %1$s</string>
+    <string name="virus_msg_time_safe">Scan Record • %1$s</string>
+
+    <string name="virus_msg_title_danger">A threat has been found! Click to view</string>
+    <string name="virus_msg_title_suspicious">A suspicious has been found! Click to view</string>
+    <string name="virus_msg_title_safe">A file has been scanned.</string>
+
+    <string name="virus_msg_info2_danger">%1$s of %2$s scan engine mark it malicious, threat
+    level High</string>
+    <string name="virus_msg_info2_suspicious">%1$s of %2$s scan engine mark it malicious, threat
+    level Middle</string>
+    <string name="virus_msg_info2_safe">%1$s scan engines mark it safe, no threat.</string>
+
+    <string name="virus_head_title">Antivirus engine has protected for %1$d days.</string>
+    <string name="virus_head_not_handled">Not handled: %1$d</string>
+    <string name="virus_head_count">Sum %1$d, Queue %2$d, Handled %3$d</string>
+    <string name="virus_head_enable">Antivirus engine is enabled</string>
+    <string name="virus_head_disable">Antivirus engine is disabled</string>
 
 
     <string-array name="itemWebTitles">

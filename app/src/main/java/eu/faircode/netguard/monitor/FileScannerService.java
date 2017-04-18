@@ -182,8 +182,8 @@ public class FileScannerService extends Service {
         public static final int MSG_SCAN_SOLVE = 17;
 
         private int sum;
-        private int danger;
-        private int solved;
+        private int not_handled;
+        private int handled;
         private int queue;
         private boolean notificationEnable = false;
 
@@ -202,8 +202,8 @@ public class FileScannerService extends Service {
 
         private void updateVirusNotification() {
             if (!notificationEnable) { return; }
-            FileScannerService.this.startForeground(NOTIFY_RUN, getVirusNotification(sum, danger,
-                    solved, queue));
+            FileScannerService.this.startForeground(NOTIFY_RUN, getVirusNotification(sum,
+                    not_handled, handled, queue));
         }
 
         private Notification getVirusNotification(int sum, int danger, int solved, int queue) {
@@ -269,7 +269,15 @@ public class FileScannerService extends Service {
 
         public UIHandler(final Looper looper) {
             super(looper);
+
+            mPreferences = PreferenceManager.getDefaultSharedPreferences(FileScannerService.this);
+            sum = mPreferences.getInt("scan_sum", 0);
+            queue = mPreferences.getInt("scan_progress", 0);
+            not_handled = mPreferences.getInt("scan_not_handled", 0);
+            handled = mPreferences.getInt("scan_handled", 0);
         }
+
+        private SharedPreferences mPreferences;
 
         @Override public void handleMessage(final Message msg) {
             Log.i(TAG, String.format("UIHandler what %d, obj %s", msg.what, msg.obj));
@@ -283,28 +291,48 @@ public class FileScannerService extends Service {
                     break;
                 case MSG_SCAN_QUERY_SAFE:
                     queue--;
+                    mPreferences.edit().putInt("scan_progress", queue).apply();
+
                 case MSG_SCAN_SAFE:
                     sum++;
+                    mPreferences.edit().putInt("scan_sum", sum).apply();
+
                     break;
                 case MSG_SCAN_QUERY_DANDER:
                     queue--;
+                    mPreferences.edit().putInt("scan_progress", queue).apply();
+
                 case MSG_SCAN_DANDER:
                     sum++;
-                    danger++;
+                    mPreferences.edit().putInt("scan_sum", sum).apply();
+
+                    not_handled++;
+                    mPreferences.edit().putInt("scan_not_handled", not_handled).apply();
+
                     //TODO ask user to handle
                     break;
                 case MSG_SCAN_QUERY_FAIL:
                     queue--;
+                    mPreferences.edit().putInt("scan_progress", queue).apply();
+
                 case MSG_SCAN_FAIL:
                     sum++;
+                    mPreferences.edit().putInt("scan_sum", sum).apply();
+
                     break;
                 case MSG_SCAN_SOLVE:
-                    danger--;
-                    solved++;
+                    not_handled--;
+                    mPreferences.edit().putInt("scan_not_handled", not_handled).apply();
+
+                    handled++;
+                    mPreferences.edit().putInt("scan_handled", handled).apply();
+
                     break;
                 case MSG_SCAN_QUEUE:
                     // sum++; in queue not count in sum
                     queue++;
+                    mPreferences.edit().putInt("scan_progress", queue).apply();
+
                     break;
             }
             updateVirusNotification();

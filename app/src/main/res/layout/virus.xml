@@ -8,13 +8,22 @@
     tools:context=".ActivityVirus"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
+    <!--<android.support.v7.widget.RecyclerView-->
+    <!--android:id="@+id/recyclerView"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--app:layoutManager="android.support.v7.widget.LinearLayoutManager"-->
+    <!--tools:listitem="@layout/item_virus"-->
+    <!--/>-->
+
+    <ListView
+        android:id="@+id/listView"
         android:layout_height="match_parent"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_virus"
-        />
+        android:layout_width="match_parent"
+        android:divider="@android:color/white"
+        android:dividerHeight="8dp"
+        android:padding="8dp"
+        tools:listitem="@layout/item_virus"/>
 
     <eu.faircode.netguard.view.FloatActionSwitch
         android:id="@+id/fab"

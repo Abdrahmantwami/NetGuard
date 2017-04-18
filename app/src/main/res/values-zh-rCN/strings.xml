@@ -281,7 +281,25 @@
     <item>UDP</item>
     <item>TCP</item>
   </string-array>
-  <string name="virus_msg_title_threat">威胁警报 • 1 小时前</string>
+  <!--Threat Alert • 1 hour ago-->
+  <string name="virus_msg_time_danger">威胁警报 • %1$s</string>
+  <string name="virus_msg_time_suspicious">可疑警报 • %1$s</string>
+  <string name="virus_msg_time_safe">扫描记录 • %1$s</string>
+
+  <string name="virus_msg_title_danger">发现了一个威胁！点此进行处理</string>
+  <string name="virus_msg_title_suspicious">发现了一个可疑的软件! 点此进行处理</string>
+  <string name="virus_msg_title_safe">扫描了一个文件，没有发现威胁</string>
+
+  <string name="virus_msg_info2_danger">%2$s个扫描引擎中，%1$s将其标为恶意软件, 威胁级别 高</string>
+  <string name="virus_msg_info2_suspicious">%2$s个扫描引擎中，%1$s将其标为恶意软件, 威胁级别 中</string>
+  <string name="virus_msg_info2_safe">%1$s个扫描引擎将其标为安全, 没有威胁.</string>
+
+  <string name="virus_head_title">反病毒引擎已经守护您的手机 %1$d 天.</string>
+  <string name="virus_head_not_handled">尚未处理的威胁: %1$d</string>
+  <string name="virus_head_count">累计扫描文件 %1$d, 正在扫描 %2$d, 已处理 %3$d</string>
+  <string name="virus_head_enable">实时防护已开启</string>
+  <string name="virus_head_disable">实时防护已关闭</string>
+
   <string name="msg_virus_protect_queue_one">正在扫描一个潜在的威胁…</string>
   <string name="msg_virus_protect_safe">病毒防护已开启，尚未发现任何威胁</string>
   <string name="msg_virus_protect_queue_some">正在扫描威胁…</string>

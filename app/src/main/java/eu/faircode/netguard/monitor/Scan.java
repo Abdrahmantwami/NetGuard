@@ -35,6 +35,25 @@ public class Scan {
     @Expose public int scanAllResultI;
     @DatabaseField
     @Expose public int progressPercentage = -1;
+
+    @Override public String toString() {
+        return "Scan{" +
+                "type=" + type +
+                ", e=" + e +
+                ", path='" + path + '\'' +
+                ", dataId='" + dataId + '\'' +
+                ", inQueue=" + inQueue +
+                ", restIp='" + restIp + '\'' +
+                ", scanAllResultI=" + scanAllResultI +
+                ", progressPercentage=" + progressPercentage +
+                ", totalAvs=" + totalAvs +
+                ", totalDetectedAvs=" + totalDetectedAvs +
+                ", displayName='" + displayName + '\'' +
+                ", fileTypeExtension='" + fileTypeExtension + '\'' +
+                ", time=" + time +
+                '}';
+    }
+
     @DatabaseField
     @Expose public int totalAvs;
     @DatabaseField
