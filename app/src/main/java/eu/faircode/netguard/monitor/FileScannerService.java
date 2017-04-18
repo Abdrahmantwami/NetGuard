@@ -26,11 +26,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.TypedValue;
 
+import com.j256.ormlite.dao.Dao;
+
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import eu.faircode.netguard.ActivityMain;
 import eu.faircode.netguard.BuildConfig;
+import eu.faircode.netguard.ORMDatabaseHelper;
 import eu.faircode.netguard.R;
 import eu.faircode.netguard.Receiver;
 import eu.faircode.netguard.ServiceSinkhole;
@@ -314,9 +318,13 @@ public class FileScannerService extends Service {
         public static final int MSG_WHAT_QUERY = 1;
         public static final int QUERY_DELAY_MILLIS = 1000 * 5;
         private MetaDefenderAPI api = RetrofitFactory.getMetaDefenderAPI();
+        private ORMDatabaseHelper helper;
+
+
 
         ScanHandler(final Looper looper) {
             super(looper);
+            helper = new ORMDatabaseHelper(FileScannerService.this);
         }
 
         private void handleQuery(Scan oldScan) {
@@ -339,8 +347,8 @@ public class FileScannerService extends Service {
 
                 m.obj = scan;
                 // TODO write to database
-
-                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan.file));
+                writeToDatabase(scan);
+                Log.i(TAG, String.format("scan status type %s, path %s", scan.which(), scan.path));
                 switch (scan.which()) {
                     case SkipLarge:
                     case SkipSafe:
@@ -374,7 +382,7 @@ public class FileScannerService extends Service {
 
         private Scan queryScan(final Scan oldScan) throws
                 ScanException, IOException {
-            File file = oldScan.file;
+            File file = new File(oldScan.path);
             String restIp = oldScan.restIp;
             String dataId = oldScan.dataId;
 
@@ -422,8 +430,8 @@ public class FileScannerService extends Service {
 
                 m.obj = scan;
                 // TODO write to database
-
-                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan.file));
+                writeToDatabase(scan);
+                Log.i(TAG, String.format("scan status type %s, path %s", scan.which(), scan.path));
                 switch (scan.which()) {
                     case SkipLarge:
                     case SkipSafe:
@@ -450,6 +458,17 @@ public class FileScannerService extends Service {
                 Log.e(TAG, "error when scan", e);
             }
             mUIHandler.sendMessage(m);
+        }
+
+        private void writeToDatabase(Scan scan) {
+            try {
+                Log.i(TAG, String.format("write scan to database %s", scan));
+                Dao<Scan, Long> dao = helper.getDao(Scan.class);
+                dao.create(scan);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Log.e(TAG, String.format("sql ex when writeToDatabase, scan %s", scan));
+            }
         }
 
         @Nullable

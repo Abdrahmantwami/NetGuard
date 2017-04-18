@@ -1,17 +1,19 @@
 package eu.faircode.netguard.monitor;
 
 import com.google.gson.annotations.Expose;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.File;
 
 /**
  * Created by Carlos on 4/13/17.
  */
-
+@DatabaseTable
 public class Scan {
-    private Scan.Type type;
+    @DatabaseField private Scan.Type type;
     public Exception e;
-    public File file;
+    @DatabaseField public String path;
 
 
     public Type which() {
@@ -19,20 +21,31 @@ public class Scan {
     }
 
 
-    @Expose public String dataId;
+    @DatabaseField
+    @Expose
+    public String dataId;
 
     // for upload scan
+    @DatabaseField
     @Expose public int inQueue = -1;
+    @DatabaseField
     @Expose public String restIp;
 
+    @DatabaseField
     @Expose public int scanAllResultI;
+    @DatabaseField
     @Expose public int progressPercentage = -1;
+    @DatabaseField
     @Expose public int totalAvs;
+    @DatabaseField
     @Expose public int totalDetectedAvs;
 
 
+    @DatabaseField
     @Expose public String displayName;
+    @DatabaseField
     @Expose public String fileTypeExtension;
+    @DatabaseField(id = true) public long time = System.currentTimeMillis();
 
     public Scan() {
         // keep for ORMLite
@@ -41,14 +54,14 @@ public class Scan {
     public static Scan skipSafeFile(File file) {
         Scan result = new Scan();
         result.type = Scan.Type.SkipSafe;
-        result.file = file;
+        result.file(file);
         return result;
     }
 
     public static Scan skipLargeFile(File file) {
         Scan result = new Scan();
         result.type = Scan.Type.SkipLarge;
-        result.file = file;
+        result.file(file);
         return result;
     }
 
@@ -56,7 +69,7 @@ public class Scan {
         Scan result = new Scan();
         result.type = Scan.Type.Stub;
         result.e = e;
-        result.file = file;
+        result.file(file);
         return result;
     }
 
@@ -75,7 +88,7 @@ public class Scan {
     }
 
     public Scan file(File file) {
-        this.file = file;
+        this.path = file.getPath();
         return this;
     }
 
