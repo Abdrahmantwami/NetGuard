@@ -57,7 +57,7 @@ public class ActivityWeb extends ActivityBase {
         @Override public void onBindViewHolder(final ViewHolder holder, final int position) {
 
             holder.itemTitle.setText(titles[position]);
-            holder.itemTitle.setText(descs[position]);
+            holder.itemDesc.setText(descs[position]);
             holder.itemSwitch.setTag(position);
             holder.itemSwitch.setChecked(mPreferences.getBoolean("item_web_switch" + position,
                     false));
