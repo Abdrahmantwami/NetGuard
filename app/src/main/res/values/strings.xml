@@ -299,6 +299,19 @@ Your internet traffic is not being sent to a remote VPN server.</string>
 
     <string name="virus_msg_title_threat">Threat Alert • 1 hour ago</string>
 
+
+    <string-array name="itemWebTitles">
+        <item>Malicious Block</item>
+        <item>Ad Block</item>
+        <item>Privacy Block</item>
+    </string-array>
+
+    <string-array name="itemWebDescs">
+        <item>Block Malicious Website</item>
+        <item>Remove Ad in web pages</item>
+        <item>Remove society website button</item>
+    </string-array>
+
     <string-array name="themeNames">
         <item>teal/orange</item>
         <item>blue/orange</item>

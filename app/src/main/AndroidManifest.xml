@@ -170,6 +170,17 @@
                 android:value=".ActivityEntry"/>
         </activity>
 
+        <activity
+            android:name=".ActivityWeb"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/entry_web"
+            android:parentActivityName=".ActivityEntry"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ActivityEntry"/>
+        </activity>
+
         <service
             android:name=".ServiceSinkhole"
             android:label="@string/app_name"

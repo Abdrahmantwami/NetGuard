@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_btn_white"
+    android:onClick="onClick"
+    android:padding="16dp"
+    android:stateListAnimator="@animator/btn_elevation"
+    tools:showIn="@layout/web"
+    >
+
+    <TextView
+        android:id="@+id/itemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:drawablePadding="8dp"
+        android:drawableStart="@drawable/ic_firewall"
+        android:drawableTint="#ff0000"
+        android:text="网页防护"
+        android:textAppearance="@style/TextMedium"
+        />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/itemSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:padding="16dp"
+        />
+
+    <TextView
+        android:id="@+id/itemDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/itemTitle"
+        android:layout_toStartOf="@+id/itemSwitch"
+        android:paddingTop="6dp"
+        android:text="开启网页防护，将会对存在危险的网页进行过滤"
+        />
+</RelativeLayout>

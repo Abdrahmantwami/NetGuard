@@ -224,6 +224,7 @@ public class ActivityEntry extends AppCompatActivity implements SharedPreference
                 startActivity(new Intent(this, ActivityVirus.class));
                 break;
             case R.id.entry_web:
+                startActivity(new Intent(this, ActivityWeb.class));
                 break;
         }
     }
