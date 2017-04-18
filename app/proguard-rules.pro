@@ -76,3 +76,6 @@
 -keep interface com.j256.**
 -keepclassmembers interface com.j256.** { *; }
 -dontwarn com.j256.**
+
+
+-dontwarn java.lang.invoke.**
