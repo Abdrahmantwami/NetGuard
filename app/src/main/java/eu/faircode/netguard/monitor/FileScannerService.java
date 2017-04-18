@@ -319,18 +319,18 @@ public class FileScannerService extends Service {
             super(looper);
         }
 
-        private void handleQuery(ScanQueryResult scanQueryResult) {
-            Log.i(TAG, String.format(" handleQuery scan: %s", scanQueryResult));
+        private void handleQuery(Scan oldScan) {
+            Log.i(TAG, String.format(" handleQuery scan: %s", oldScan));
 
-            if (scanQueryResult == null) {
-                Log.e(TAG, " msg with null ScanQueryResult obj");
+            if (oldScan == null) {
+                Log.e(TAG, " msg with null Scan obj");
                 return;
             }
 
 
             Message m = mUIHandler.obtainMessage();
             try {
-                ScanQueryResult scan = queryScan(scanQueryResult);
+                Scan scan = queryScan(oldScan);
 
                 if (BuildConfig.DEBUG) {
                     //noinspection ConstantConditions
@@ -340,8 +340,7 @@ public class FileScannerService extends Service {
                 m.obj = scan;
                 // TODO write to database
 
-                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan
-                        .fileInfo.file));
+                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan.file));
                 switch (scan.which()) {
                     case SkipLarge:
                     case SkipSafe:
@@ -366,24 +365,24 @@ public class FileScannerService extends Service {
                 }
             } catch (IOException | ScanException e) {
                 m.what = UIHandler.MSG_SCAN_QUERY_FAIL;
-                m.obj = scanQueryResult;
+                m.obj = oldScan;
                 e.printStackTrace();
                 Log.e(TAG, "error when query", e);
                 mUIHandler.sendMessage(m);
             }
         }
 
-        private ScanQueryResult queryScan(final ScanQueryResult oldScanQueryResult) throws
+        private Scan queryScan(final Scan oldScan) throws
                 ScanException, IOException {
-            File file = oldScanQueryResult.fileInfo.file;
-            String restIp = oldScanQueryResult.restIp;
-            String dataId = oldScanQueryResult.dataId;
+            File file = oldScan.file;
+            String restIp = oldScan.restIp;
+            String dataId = oldScan.dataId;
 
             String url = String.format("https://%s/file/%s", restIp, dataId);
 
-            Response<ScanQueryResult> resp = api.queryScan(url).execute();
+            Response<Scan> resp = api.queryScan(url).execute();
             if (resp.isSuccessful()) {
-                ScanQueryResult newScanResult = resp.body();
+                Scan newScanResult = resp.body();
                 if (newScanResult == null) {
                     throw new ScanException("null scan result returned by queryScan");
                 } else {
@@ -409,7 +408,7 @@ public class FileScannerService extends Service {
             Message m = mUIHandler.obtainMessage();
 
             try {
-                ScanQueryResult scan = localScan(file);
+                Scan scan = localScan(file);
                 if (scan == null) {
                     scan = hashScan(file);
                 }
@@ -424,8 +423,7 @@ public class FileScannerService extends Service {
                 m.obj = scan;
                 // TODO write to database
 
-                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan
-                        .fileInfo.file));
+                Log.i(TAG, String.format("scan status type %s, file %s", scan.which(), scan.file));
                 switch (scan.which()) {
                     case SkipLarge:
                     case SkipSafe:
@@ -448,14 +446,14 @@ public class FileScannerService extends Service {
                 }
             } catch (IOException | ScanException e) {
                 m.what = UIHandler.MSG_SCAN_FAIL;
-                m.obj = ScanQueryResult.errorStubQueryResult(e, file);
+                m.obj = Scan.errorStubQueryResult(e, file);
                 Log.e(TAG, "error when scan", e);
             }
             mUIHandler.sendMessage(m);
         }
 
         @Nullable
-        private ScanQueryResult hashScan(File file) throws ScanException, IOException {
+        private Scan hashScan(File file) throws ScanException, IOException {
             String sha1 = Util.sha1(file);
 
             // official test case
@@ -467,12 +465,12 @@ public class FileScannerService extends Service {
                 }
             }
 
-            Response<ScanQueryResult> resp = api.hashLookUp(sha1).execute();
+            Response<Scan> resp = api.hashLookUp(sha1).execute();
             Log.i(TAG, String.format("hashLookUp file: %s sha1: %s resp: %s", file, sha1,
                     resp));
 
             if (resp.isSuccessful()) {
-                ScanQueryResult body = resp.body();
+                Scan body = resp.body();
                 if (body != null) {
                     try {
                         body.file(file).auto();
@@ -491,18 +489,18 @@ public class FileScannerService extends Service {
         }
 
         @NonNull
-        private ScanQueryResult uploadScan(File file) throws ScanException, IOException {
+        private Scan uploadScan(File file) throws ScanException, IOException {
             if (file.length() > 140 * 1000 * 1000) {
-                return ScanQueryResult.skipLargeFile(file);
+                return Scan.skipLargeFile(file);
             }
 
             RequestBody body = RequestBody.create(MediaType.parse("file"), file);
 
-            Response<ScanQueryResult> resp = api.uploadScan(file.getName(), body).execute();
+            Response<Scan> resp = api.uploadScan(file.getName(), body).execute();
             Log.i(TAG, String.format("uploadLookup file: %s", file));
 
             if (resp.isSuccessful()) {
-                ScanQueryResult scanResult = resp.body();
+                Scan scanResult = resp.body();
                 if (scanResult == null) {
                     throw new ScanException("null scan result returned by uploadScan");
                 } else {
@@ -516,7 +514,7 @@ public class FileScannerService extends Service {
         }
 
         @Nullable
-        private ScanQueryResult localScan(File file) {
+        private Scan localScan(File file) {
             if (BuildConfig.DEBUG && file.getName().contains("yyz_test")) {
                 return null;
             }
@@ -524,15 +522,15 @@ public class FileScannerService extends Service {
             if (file.length() > 0) {
                 return null;
             } else {
-                return ScanQueryResult.skipSafeFile(file);
+                return Scan.skipSafeFile(file);
             }
         }
 
         @Override public void handleMessage(final Message msg) {
             switch (msg.what) {
                 case MSG_WHAT_QUERY:
-                    ScanQueryResult scanQueryResult = (ScanQueryResult) msg.obj;
-                    handleQuery(scanQueryResult);
+                    Scan scan = (Scan) msg.obj;
+                    handleQuery(scan);
                     break;
                 case MSG_WHAT_QUEUE:
                     final File file = (File) msg.obj;

@@ -39,7 +39,7 @@ class ScanAPIExceededException extends ScanException {
 }
 
 class ScanHTTPException extends ScanException {
-    public ScanHTTPException(Response<ScanQueryResult> response) {
+    public ScanHTTPException(Response<Scan> response) {
         super(String.format("HTTP error, resp: %s", response.toString()));
     }
 }

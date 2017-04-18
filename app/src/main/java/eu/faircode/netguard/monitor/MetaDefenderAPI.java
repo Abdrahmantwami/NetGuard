@@ -18,16 +18,16 @@ public interface MetaDefenderAPI {
 
     @GET("hash/{hash_value}")
     @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
-    Call<ScanQueryResult> hashLookUp(@Path("hash_value") String hash);
+    Call<Scan> hashLookUp(@Path("hash_value") String hash);
 
 
     @POST("file")
     @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
-    Call<ScanQueryResult> uploadScan(@Header("filename") String filename, @Body RequestBody body);
+    Call<Scan> uploadScan(@Header("filename") String filename, @Body RequestBody body);
 
     @GET
     @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
-    Call<ScanQueryResult> queryScan(@Url String url);
+    Call<Scan> queryScan(@Url String url);
 
 
 }
