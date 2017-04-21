@@ -590,7 +590,7 @@ public class AdapterRule extends RecyclerView.Adapter<AdapterRule.ViewHolder> im
 
         // Show logging/filtering is disabled
         final boolean log_app = prefs.getBoolean("log_app", false);
-        final boolean filter = prefs.getBoolean("filter", false);
+        final boolean filter = prefs.getBoolean("filter", Constant.FILTER_ENABLE);
         holder.tvLogging.setText(log_app && filter ? R.string.title_logging_enabled : R.string.title_logging_disabled);
         holder.btnLogging.setOnClickListener(new View.OnClickListener() {
             @Override

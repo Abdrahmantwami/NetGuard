@@ -598,7 +598,7 @@ public class ActivitySettings extends AppCompatActivity implements SharedPrefere
 
         } else if ("filter".equals(name)) {
             // Show dialog
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && prefs.getBoolean(name, false)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && prefs.getBoolean(name, Constant.FILTER_ENABLE)) {
                 LayoutInflater inflater = LayoutInflater.from(ActivitySettings.this);
                 View view = inflater.inflate(R.layout.filter, null, false);
                 dialogFilter = new AlertDialog.Builder(ActivitySettings.this)
@@ -618,7 +618,7 @@ public class ActivitySettings extends AppCompatActivity implements SharedPrefere
                         })
                         .create();
                 dialogFilter.show();
-            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !prefs.getBoolean(name, false)) {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && !prefs.getBoolean(name, Constant.FILTER_ENABLE)) {
                 prefs.edit().putBoolean(name, true).apply();
                 Toast.makeText(ActivitySettings.this, R.string.msg_filter4, Toast.LENGTH_SHORT).show();
             }

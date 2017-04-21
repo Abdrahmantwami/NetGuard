@@ -207,7 +207,7 @@ public class ActivityLog extends AppCompatActivity implements SharedPreferences.
                 else
                     popup.getMenu().findItem(R.id.menu_port).setTitle(getString(R.string.title_log_port, port));
 
-                if (!prefs.getBoolean("filter", false)) {
+                if (!prefs.getBoolean("filter", Constant.FILTER_ENABLE)) {
                     popup.getMenu().removeItem(R.id.menu_allow);
                     popup.getMenu().removeItem(R.id.menu_block);
                 }
@@ -383,7 +383,7 @@ public class ActivityLog extends AppCompatActivity implements SharedPreferences.
         menu.findItem(R.id.menu_protocol_udp).setChecked(prefs.getBoolean("proto_udp", true));
         menu.findItem(R.id.menu_protocol_tcp).setChecked(prefs.getBoolean("proto_tcp", true));
         menu.findItem(R.id.menu_protocol_other).setChecked(prefs.getBoolean("proto_other", true));
-        menu.findItem(R.id.menu_traffic_allowed).setEnabled(prefs.getBoolean("filter", false));
+        menu.findItem(R.id.menu_traffic_allowed).setEnabled(prefs.getBoolean("filter", Constant.FILTER_ENABLE));
         menu.findItem(R.id.menu_traffic_allowed).setChecked(prefs.getBoolean("traffic_allowed", true));
         menu.findItem(R.id.menu_traffic_blocked).setChecked(prefs.getBoolean("traffic_blocked", true));
 
