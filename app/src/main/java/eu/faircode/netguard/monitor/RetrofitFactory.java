@@ -35,8 +35,8 @@ public class RetrofitFactory {
     }
 
     private static class ScanTypeAdapter extends TypeAdapter<Scan> {
-        private Gson mGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        private Gson mGson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy
+                .LOWER_CASE_WITH_UNDERSCORES).create();
 
         @Override public void write(final JsonWriter out, final Scan value) throws IOException {
             throw new IOException("Scan Type Not support to write to json");

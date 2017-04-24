@@ -105,6 +105,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import eu.faircode.netguard.monitor.WebSecurityChecker;
+
 public class ServiceSinkhole extends VpnService implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "NetGuard.Service";
 
@@ -135,6 +137,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
     private Map<Integer, Forward> mapForward = new HashMap<>();
     private Map<Integer, Boolean> mapNoNotify = new HashMap<>();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private WebSecurityChecker mWebSecurityChecker;
 
     private volatile Looper commandLooper;
     private volatile Looper logLooper;
@@ -1772,6 +1775,12 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
             if (packet.protocol != 6 /* TCP */ || !"".equals(packet.flags))
                 logPacket(packet);
 
+        if (mWebSecurityChecker != null && packet.uid >= 2000 && mWebSecurityChecker.isEnabled()) {
+            if (!mWebSecurityChecker.isAddressAllowed(packet.daddr)) {
+                return null;
+            }
+        }
+
         return allowed;
     }
 
@@ -2122,6 +2131,7 @@ public class ServiceSinkhole extends VpnService implements SharedPreferences.OnS
         commandThread.start();
         logThread.start();
         statsThread.start();
+        mWebSecurityChecker = new WebSecurityChecker(this);
 
         commandLooper = commandThread.getLooper();
         logLooper = logThread.getLooper();

@@ -29,5 +29,8 @@ public interface MetaDefenderAPI {
     @Headers({"apikey: 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: identity"})
     Call<Scan> queryScan(@Url String url);
 
-
+    @GET("/v3/ip/{address}")
+    @Headers({"Authorization: apikey 2fdb7380227857ba340639ca4b6cd934", "Accept-Encoding: " +
+            "identity"})
+    Call<IPReputationQueryResult> queryIp(@Path("address") String address);
 }
