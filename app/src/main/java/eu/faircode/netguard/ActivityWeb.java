@@ -70,7 +70,7 @@ public class ActivityWeb extends ActivityBase {
         @Override
         public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
             Object tag = buttonView.getTag();
-            if (tag == null || tag instanceof Integer) {
+            if (tag == null || !(tag instanceof Integer)) {
                 Log.e(getTag(), String.format("switch's tag is wrong, view: %s, tag: %s",
                         buttonView, tag));
                 return;

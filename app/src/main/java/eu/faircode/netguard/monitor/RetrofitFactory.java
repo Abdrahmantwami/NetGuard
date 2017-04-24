@@ -25,6 +25,7 @@ public class RetrofitFactory {
     static final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("https://api.metadefender.com/v2/")
             .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                     .registerTypeAdapter(Scan.class, new ScanTypeAdapter()).create()))
             .client(client)
             .build();
