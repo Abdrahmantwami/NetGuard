@@ -567,9 +567,13 @@ handle_events(args){
 
 \chapter{概要设计}
 
-\section{功能设计}
+\section{总体功能设计}
 \todo[inline]{增加模块图，完善列举所有功能}
 \todo[inline]{对所有功能进行描述，画大量的逻辑图，扩充至10页}
+
+\subsetion{网络防护}
+
+\subsubsection{功能设计}
 
 用户期望一个Android防火墙应用提供友好的交互界面和正常的拦截效果。设计中应实现：
 \begin{itemize}
@@ -582,7 +586,7 @@ handle_events(args){
     \item 配置导出导入
 \end{itemize}
 
-\section{模块设计}
+\subsubsection{模块设计}
 
 根据实现防火墙的原理和功能需求，设计了成如\autoref{fig:5}的应用架构。
 
@@ -601,6 +605,29 @@ handle_events(args){
 	\item 公共功能\\除核心防火墙之外的功能，如用户向导，版本更新，配置导入导出等功能由于功能简单，不在划分更加详细的模块层次。
 \end{itemize}
 
+\subsection{文件防护}
+
+文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。
+
+\subsubsection{功能设计}
+
+\begin{itemize}
+    \item 实时监控控制开关：关闭和启用实时文件病毒防护
+    \item 实时监控配置界面：允许用户添加和删除监控区域
+    \item 自定义扫描：用户选取特定扫描区域进行扫描
+    \item 最近扫描记录列表：用户在此查看所有的扫描记录和扫描结果
+    \item 威胁处理界面：用户对识别出的威胁做出处理
+\end{itemize}
+
+\subsubsection{模块设计}
+
+\begin{itemize}
+    \item 表现模块\\ 表现模块主要是UI界面，包含对历史扫描记录的显示，威胁的处理，发起自定义扫描和配置文件监控扫描；历史记录和威胁处理主要和数据模块进行交互，发起扫描和配置文件监控则对扫描模块生效。
+    \item 扫描模块\\ 扫描引擎FileScanService是一个Service，负责接收命令，扫描文件和发出扫描结果。FileScanService在HandlerThread中进行扫描，在UI Thread中进行消息接收和结果反馈。多线程之间通过Handler-Message机制进行交流，避免在主线程进行耗时操作；
+    \item 数据模块\\ 数据模块负责接收扫描模块的扫描结果，进行本地存储扫描记录。
+\end{itemize}
+
+\subsubsection{模块设计}
 
 
 \section{UI设计}
@@ -882,6 +909,14 @@ SharePreference是Android系统提供的一种简单的Key-Value持久化机制�
     editor.putString("user_name","Carlos");
     editor.commit();
 \end{lstlisting}
+
+\subsubsection{SharePreference存储设计}
+
+应用主要包含多级的配置结构，以及一些单列的配置文件，对此我们设计其结果如下图所示：
+
+\todo[inline]{增加SharePrefenrence图}
+
+\todo[inline]{列举设置条目}
 
 \chapter{系统测试}
 
