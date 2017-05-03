@@ -607,7 +607,7 @@ handle_events(args){
 
 \subsection{文件防护}
 
-文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。
+文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。这个功能核心在于对下载文件夹等敏感目录进行监控，自动的进行恶意软件扫描和警报，另外也提供了让用户自定义扫描任何位置的功能。
 
 \subsubsection{功能设计}
 
@@ -629,6 +629,26 @@ handle_events(args){
 
 \subsubsection{模块设计}
 
+\subsection{网页防护}
+
+网页防护通过对流量的过滤，将存在威胁的ip以及存在恶意代码的网页进行屏蔽，阻止这些网站威胁到手机安全。在是实现上，以全局代理作为基础，对流量数据进行过滤，针对http和https等协议进行额外的检查。为了进行检查，首先需要一个恶意网站网址和恶意ip的列表，这种列表存在多种机构在各自独立的维护，主要是url reputation相关。在我们的安全软件上，需要下载一份列表，并定期进行更新，在发生网页访问时，通过Url从本地的列表查询是否是记录在案的恶意网站。对于恶意网站，忽略这个网络请求，并返回一个虚构的对用户进行恶意网站提示的网页，这个网页在软件本地生存。
+
+\subsubsection{功能设计}
+
+\begin{itemize}
+    \item 网页威胁控制开关：关闭和启用网页威胁防护
+\end{itemize}
+
+\subsubsection{模块设计}
+
+网页防护功能通过与防火墙协同工作实现，防火墙识别网页请求，并转发到网页防护进行处理。网页防护负责根据网页请求的URL进行查找本地黑名单，然后决定是否允许链接。
+
+\begin{itemize}
+    \item 代理模块\\ 代理模块由防火墙功能实现，它将从所有流量从提取HTTP和HTTPS流量，并将结果转发给网页过滤模块
+    \item 网页过滤模块\\ 网页过滤模块负责从黑名单中匹配网页请求，并生成返回结果
+    \item 黑名单模块管理模块\\ 黑名单模块负责提供黑名单，并负责对名单定期更新
+    \item 持久化模块\\ 负责存储黑名单数据
+\end{itemize}
 
 \section{UI设计}
 
@@ -921,6 +941,60 @@ SharePreference是Android系统提供的一种简单的Key-Value持久化机制�
 \chapter{系统测试}
 
 \todo[inline]{列出兼容性测试项目表}，说明要兼容的项和原因，解释新功能，截图证明兼容性
+
+\section{兼容性测试}
+
+
+Android
+运行在许多不同类型的设备上，包括手机到平板电脑和电视机。作为开发人员，各种设备为您的应用程序提供了巨大的潜在受众。为了使您的应用程序在所有这些设备上取得成功，它应该容忍一些功能变化，并提供适应不同屏幕配置的灵活的用户界面。
+
+为了方便您的努力，Android提供了一个动态应用程序框架，您可以在其中提供静态文件中的配置专用应用程序资源（例如不同的屏幕尺寸的不同XML布局）。然后，Android将根据当前设备配置加载相应的资源。因此，有一些预想到您的应用程序设计和一些额外的应用程序资源，您可以发布单个应用程序包（APK），在各种设备上提供优化的用户体验。
+
+Android提供了一个动态应用程序框架，您可以在其中提供静态文件中的配置专用应用程序资源（例如不同的屏幕尺寸的不同XML布局）。然后，Android将根据当前设备配置加载相应的资源。因此，有一些预想到您的应用程序设计和一些额外的应用程序资源，您可以发布单个应用程序包（APK），在各种设备上提供优化的用户体验。
+
+\subsection{权限兼容}
+
+Android系统要求应用软件对使用的权限进行声明，我们的安全应用使用到了网络，访问网络、WIFI、手机状态，在系统启动时自动启动，防止设备休眠，震动，访问文件系统这些权限。对此我们使用了如下声明：
+
+\begin{lstlisting}[language=xml]
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+\end{lstlisting}
+
+
+在Android 5.1（API级别22）或更低版本的Android系统上，或者应用程序的targetSdkVersion为22或更低版本，在应用的Manifset文件作出上述权限声明，即可保证运行时已经被授予了上述权限，这些权限会在安装时被一次性授予，并且只能通过卸载应用来撤销。 但在6.0 (API级别23)或更高版本的Android系统上，应用程序需要在运行时请求用户的权限。 用户可以随时撤销权限，因此应用程序需要检查每次运行时是否具有权限。
+对此，我们在是现实，对于需要权限的地方，均做了以下处理：
+    1. 每次运行时检查权限是否满足
+    2. 不满足权限要求时，要求用户授予权限
+
+\todo 添加流程图
+
+
+测试项目
+
+1. 在Android 5.1以下系统运行正常
+2. 在Android 6.0以上能提醒用户授权
+
+
+\subsection{多尺寸屏幕显示兼容}
+
+
+
+
+\section{功能测试}
+
+
+\subsection{防火墙功能测试}
+
+
+
 \todo[inline]{列出功能测试项目表}，UI截图证明
 \todo[inline]{列出性能测试项目表}，列出数据
 
