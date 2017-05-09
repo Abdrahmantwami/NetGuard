@@ -82,18 +82,37 @@ Android系统自带的通信权限管理仅仅允许对特定应用设置是否�
 在对市场上多款防火墙类应用软件进行分析和比较之后，将用户需求列为以下几点：
 \begin{itemize}
 	\item 过滤Android系统所有流量\label{item:1}
+	\item 支持多样的防火墙规则，如规则支持WiFi和数据流量状态、亮灭屏状态等
+	\item 支持文件系统敏感区域病毒监控
+	\item 支持恶意网页拦截
 	\item 图形界面，操作简便，通俗易懂
-	\item 支持WiFi和数据流量应用不同规则
-	\item 支持亮灭屏状态应用不同规则
-	\item 支持分时段应用不同规则p
 \end{itemize}
 
+
 对于上述需求，进行明确和细化，方便开发和测试验收：
-\subsection{功能性要求}
-\subsubsection{兼容和适配}
-	
-	兼容到Android4.0及以上
-\subsubsection{防火墙}
+\subsection{基础要求}
+
+\subsubsection{兼容性要求}
+	在兼容性方面，我们需要做的包括系统版本兼容、CPU架构兼容，权限兼容和屏幕尺寸兼容。在此提出具体的兼容要求：
+
+\begin{itemize}
+	\item 兼容Android 4.0及以上系统，能在这些版本的Android系统上正常运行
+	\item 兼容ARM，x86和x86\_64架构，能在这些架构的手机上正常运行
+	\item 支持多种版本Android系统的权限系统
+	\item 能在1280*720至2560x1440多种分辨率的手机上正常显示
+\end{itemize}
+
+\subsubsection{易用性要求}
+	作为一款移动应用软件，提供良好的易用性是必要的，我们提出了以下要求：
+	\begin{itemize}
+		\item 提供良好的GUI以及良好的交互
+		\item 提供快捷切换的开关
+		\item 提供友好的通知和提醒
+	\end{itemize}
+
+\subsection{功能要求}
+
+\subsubsection{防火墙功能}
 \begin{enumerate}
 	\item 交互式规则：如果新建立的连接没有已知的规则进行决策，会通知用户即时作出决策。在用户可以在弹出的通知栏里选择允许或者拒绝，然后就会记住该规则，在以后有相同的连接时采用该规则；如果用户选择了拒绝，该连接将会被切断。
 	\item 审计式规则：用户可以查看近期所有的连接记录，可以选择对特定连接快捷建立规则
@@ -108,14 +127,29 @@ Android系统自带的通信权限管理仅仅允许对特定应用设置是否�
 	\item 新应用提示：在用户安装新的应用程序后，会提示用户为其创建规则
 \end{enumerate}
 
-\subsubsection{性能}
+\subsubsection{文件防护功能}
+
+文件防护功能监控文件系统的关键区域，对潜在的威胁进行扫描，其功能的要求如下：
+\begin{itemize}
+	\item 扫描文件病毒
+	\item 监控下载文件夹自动扫描可疑文件
+	\item 自定义监控的文件位置
+\end{itemize}
+
+
+\subsubsection{网页防护功能}
+
+网页防护功能主要提供对存在威胁的网站的屏蔽，该功能主要基于防火墙功能实现，要求较为简单：能对存在威胁的网站进行屏蔽。
+
+\subsection{性能要求}
 
 网络防火墙为了提供额外的安全保障，必须尽可能的持续运行。所以网络防火墙必须对Android移动设备的的性能和电量的消耗保持在最小。所以必须采取措施将防火墙规则匹配的耗时和对包处理的耗时降到最低，例如TCP连接可以只对SYN和FIN包进行处理便可实现监控TCP连接的生命周期，此外我们还需对其他协议及在所有可能的环节降低性能损失，并通过性能测试和报告证明防火墙对设备所造成的性能损失在可以容忍的较小范围之内。
 
-\subsection{非功能性要求}
+\subsection{可选高级功能要求}
 
-为了提高体验和方便实际使用，还需实现一些非核心功能的特性：
+为了提高体验和方便实际使用，还可实现一些非核心功能的特性：
 \begin{enumerate}
+	\item （可选）提供一定的交互动画
 	\item 日志查看：记录应用程序的网络访问尝试
 	\item 支持系统应用：支持对系统应用设置规则
 	\item 支持IPv6：提供对IPv6及ICMPv6的支持
@@ -219,6 +253,15 @@ VPN方案由于使用了Android官方提供的公开API，可以不需要Root权
 
 Google为开发Android应用程序提供了一系列的开发工具。
 \todo{列举开发工具}
+
+Android SDK Google提供的Android开发套件
+Android Studio 用来开发Android的集成开发环境
+Android Emutolor 用来测试的Android虚拟机
+Android NDK Android Native开发
+Android Debug Bridge Android调试
+
+un
+
 
 \section{VpnService API}
 
@@ -463,9 +506,12 @@ https://technet.microsoft.com/en-us/library/cc958821.aspx
 \subsection{TCP协议报文解析}
 
 TCP（Transmission Control Protocol ）提供了点对点，面向连接的可靠传输服务。TCP负责建立TCP连接,在传输过程中，TCP有序发送数据报并进行确认，对丢失的数据报进行重发恢复。我们对TCP层的数据进行解析的主要目的包括两个：
-    获知TCP数据报的来源端口和目的端口
-    确定TCP连接握手建立和断开的时间，用以统计网络连接时长和发送的包的大小，为用户提供流量统计等功能
-
+    
+    \begin{itemize}
+       	\item 获知TCP数据报的来源端口和目的端口
+       	\item 确定TCP连接握手建立和断开的时间，用以统计网络连接时长和发送的包的大小，为用户提供流量统计等功能
+    \end{itemize}
+    
 TCP首部的结构如\autoref{tab:4}：
 
 \begin{table}[h!]
@@ -502,37 +548,38 @@ TCP协议使用端口号进行区分发送方和接收方的应用层，我们�
 
 对于TCP连接的建立和结束时间的监控过程较为复杂，需要对TCP连接的详细过程进行了解。
 
-\subsubsection TCP状态图
+\subsubsection{TCP状态图}
 
 TCP协议工作的过程包括三个部分：创建连接，数据传输和连接终止。这个过程中TCP连接的状态复杂，我们需要对其中的状态变化进行分析才能获知TCP连接传输的时间和数据信息。
 
 创建连接：
 
-LISTEN
+\begin{itemize}
+	\item LISTEN \\
  表示正在等待任一远程的TCP的连接
-SYN-SENT
+	\item SYN-SENT \\
  表示已经发送SYN请求之后，正在等待对应连接的SYN请求
-SYN-RECEIVED
+	\item SYN-RECEIVED \\
  表示正在等待确认连接的请求，并且此时已经收到了SYN和发送了连接请求
-ESTANLISHED
+	\item ESTANLISHED \\
  表示双方据已经建立了连接，已经可以开始传输数据了
-FIN-WAIT-1
+	\item FIN-WAIT-1 \\
  表示等待远程TCP防的连接终止请求，或先前发送的连接终止请求的确认应答
-FIN-WAIT-2
+	\item FIN-WAIT-2 \\
  表示等待远程TCP防的连接终止请求
-CLOSE-WAIT
+	\item CLOSE-WAIT \\
  表示等待本地用户的连接终止请求
-CLOSING
+	\item CLOSING \\
  表示等待远程TCP的连接终止请求的确认应答
-LAST-ACK
+	\item LAST-ACK \\
  表示等待先前发送给远程TCP的终止请求的确认应答
-TIME-WAIT
+	\item TIME-WAIT \\
  表示等待过去足够的时间，确保远程TCP接收到了它发送的连接终止请求。MSL(maximum segment lifetime)用来表示TCP连接能在TIME-WAIT状态等待的最大时间，这个值的最大值为4分钟
-CLOSED
+	\item CLOSED \\
   表示目前没有任何连接状态
+\end{itemize}
 
-
-\subsection UDP协议的处理
+\subsection{UDP协议的处理}
 
 
 \subsection{伪代码}
@@ -570,6 +617,8 @@ handle_events(args){
 \section{总体功能设计}
 \todo[inline]{增加模块图，完善列举所有功能}
 \todo[inline]{对所有功能进行描述，画大量的逻辑图，扩充至10页}
+
+
 
 \subsection{网络防护}
 
@@ -1031,14 +1080,16 @@ else
 
 \subsubsection{自行封装多版本实现}
 
-除了上述的兼容措施之外，仍然存在一些情况兼容性问题难以解决，例如在新版本的Android中支持图标的颜色滤镜，能够通过简单的代码，使得图片被处理成特定的颜色来显示。
+除了上述的兼容措施之外，仍然存在一些情况兼容性问题难以解决。例如在新版本的Android中支持图标的颜色滤镜，能够通过简单的代码，使得图片被处理成特定的颜色来显示；由此，我们自己设计实现了简单工具，其实现通过判断系统版本，在高级版本时直接使用系统自带的实现，而在低级版本自行实现图标颜色的处理。
 
-\todo 从这里继续
 
 \section{功能测试}
 
 
 \subsection{防火墙功能测试}
+
+
+\todo 从这里继续
 
 
 
