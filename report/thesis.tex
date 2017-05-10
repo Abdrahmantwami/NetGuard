@@ -1,6 +1,8 @@
-\documentclass[format=final, language=chinese, degree=bachelor]{hustthesis}
+\documentclass[format=final, language=chinese, degree=fyp]{hustthesis}
 
 \usepackage[colorinlistoftodos,prependcaption]{todonotes}
+\usepackage{enumitem}
+\usepackage{listings}
 
 \stuno{U201315168}
 \schoolcode{10487}
@@ -8,7 +10,7 @@
 \author{易亚洲}{Yazhou Yi}
 \major{信息安全}{Information Security}
 \supervisor{李平}{Ping Li}
-\date{2017}{6}{1}
+\date{2017}{6}{10}
 
 \zhabstract{
 	介绍还没有写
@@ -88,7 +90,6 @@ Android系统自带的通信权限管理仅仅允许对特定应用设置是否�
 	\item 图形界面，操作简便，通俗易懂
 \end{itemize}
 
-
 对于上述需求，进行明确和细化，方便开发和测试验收：
 \subsection{基础要求}
 
@@ -155,11 +156,12 @@ Android系统自带的通信权限管理仅仅允许对特定应用设置是否�
 	\item 支持IPv6：提供对IPv6及ICMPv6的支持
 	\item 端口转发：支持增加／删除／编辑端口转发规则
 	\item 配置导入导出：支持将规则和配置导出到文件或者从文件中导入
-	\item 持久有效：防火墙必须持续有效的工作：\begin{itemize}
-		\item 进程必须尽可能避免被系统停止或杀死
-		\item 防火墙必须在断开时尝试重新启动
-		\item 防火墙必须在开机自动启动
-	\end{itemize}
+	\item 持久有效：防火墙必须持续有效的工作：
+		\begin{itemize}
+			\item 进程必须尽可能避免被系统停止或杀死
+			\item 防火墙必须在断开时尝试重新启动
+			\item 防火墙必须在开机自动启动
+		\end{itemize}
 \end{enumerate}
 
 
@@ -208,10 +210,10 @@ Android操作系统的核心是Linux内核的一个分支，但也有很多的�
 
 Android系统的架构如图所示，分为四层，自上而下分别是应用程序(Applications)，应用程序框架(Application Frameworks)，系统运行库与Android运行环境(Libraries \& Android Runtime)，Linux内核(Linux Kernel)。
 \begin{itemize}
-\item 应用程序层由各种应用软件组成，如短信，浏览器，地图等，这些应用可以是系统自带，也可以是从应用市场下载。
-\item 应用程序框架层提供了应用程序运行需要的各种API和系统服务，主要由Java编写。开发者开发Android应用需要对这一层由较多的了解。它提供了用于实现图形界面的视图，活动管理器，窗口管理器，内容提供者，资源管理器，通知管理器，包管理器，等。
-\item Android运行库是为Android系统中各种组建运行而提供的C／C++库的合集，用以实现底层的图形绘制，媒体播放录制，Web页面渲染，3G图形，SQLite数据库等功能。而Android运行时则是Android虚拟机的实现，Android 5.0以前是Dalvik虚拟机，5.0以后是ART虚拟机，用以执行应用软件中的字节码。
-\item Linux内核为Android提供硬件驱动，内存管理，进程眼里，网络协议栈和安全体系等实现。同时，Android加入了针对移动设备优化的电源管理和Binder机IPC机制。
+	\item 应用程序层由各种应用软件组成，如短信，浏览器，地图等，这些应用可以是系统自带，也可以是从应用市场下载。
+	\item 应用程序框架层提供了应用程序运行需要的各种API和系统服务，主要由Java编写。开发者开发Android应用需要对这一层由较多的了解。它提供了用于实现图形界面的视图，活动管理器，窗口管理器，内容提供者，资源管理器，通知管理器，包管理器，等。
+	\item Android运行库是为Android系统中各种组建运行而提供的C／C++库的合集，用以实现底层的图形绘制，媒体播放录制，Web页面渲染，3G图形，SQLite数据库等功能。而Android运行时则是Android虚拟机的实现，Android 5.0以前是Dalvik虚拟机，5.0以后是ART虚拟机，用以执行应用软件中的字节码。
+	\item Linux内核为Android提供硬件驱动，内存管理，进程眼里，网络协议栈和安全体系等实现。同时，Android加入了针对移动设备优化的电源管理和Binder机IPC机制。
 \end{itemize}
 https://hit-alibaba.github.io/interview/Android/basic/Android-Arch.html
 
@@ -234,7 +236,7 @@ struct nf_hook_ops
     int hooknum;
     int priority;
 };
-\end{lstlisting}
+\end{list}
 
 nf\_hook\_ops中的nf\_hookfn就是hook函数，实现一个nf\_hookfn函数，在该函数中实现对包的读取解析并过滤，返回NF\_ACCEP，NF\_DROP等返回值，即可实现对数据包的操作。
 
@@ -505,7 +507,7 @@ https://technet.microsoft.com/en-us/library/cc958821.aspx
 
 \subsection{TCP协议报文解析}
 
-TCP（Transmission Control Protocol ）提供了点对点，面向连接的可靠传输服务。TCP负责建立TCP连接,在传输过程中，TCP有序发送数据报并进行确认，对丢失的数据报进行重发恢复。我们对TCP层的数据进行解析的主要目的包括两个：
+在IP首部中，协议字段值为6，即0x06时，该IP报文携带的数据为TCP协议的数据。TCP（Transmission Control Protocol ）提供了点对点，面向连接的可靠传输服务。TCP负责建立TCP连接,在传输过程中，TCP有序发送数据报并进行确认，对丢失的数据报进行重发恢复。我们对TCP层的数据进行解析的主要目的包括两个：
     
     \begin{itemize}
        	\item 获知TCP数据报的来源端口和目的端口
@@ -550,9 +552,9 @@ TCP协议使用端口号进行区分发送方和接收方的应用层，我们�
 
 \subsubsection{TCP状态图}
 
-TCP协议工作的过程包括三个部分：创建连接，数据传输和连接终止。这个过程中TCP连接的状态复杂，我们需要对其中的状态变化进行分析才能获知TCP连接传输的时间和数据信息。
+TCP协议工作的过程包括三个部分：创建连接，数据传输和连接终止。这个过程中TCP连接的状态复杂，我们需要对其中的状态变化进行分析才能获知TCP连接传输的时间和数据信息。其状态图如图所示：
 
-创建连接：
+
 
 \begin{itemize}
 	\item LISTEN \\
@@ -579,38 +581,45 @@ TCP协议工作的过程包括三个部分：创建连接，数据传输和连�
   表示目前没有任何连接状态
 \end{itemize}
 
+\subsubsection{TCP创建连接过程}
+
+
+
+TCP在创建连接时，采用了三次握手。在客户端连接服务器之前，服务器必须首先绑定一个端口，打开此端口并监听连接,即被动打开。一旦进入这个状态，客户端就可以将状态转换为活跃打开。这三次握手的具体过程为：
+
+\begin{enumerate}
+	\item SYN \\ 客户端发送一个SYN报文到服务端，进入活跃打开状态。客户端设定一个随机的报文序列号A；
+	\item SYN-ACK \\ 服务器返回一个SYN-ACK报文。这个报文的确认码设定为上一个SYN报文的序列号加1，即A+1，序列码是服务器设定的一个随机数B；
+	\item ACK \\ 最后客户端发送ACK报文给服务器。该报文的序列号设定为A+1，确认码设定为上一个接收到的报文的序列码+1，即B+1.
+\end{enumerate}
+
+经过了上面的三次握手后，客户端和服务端均确认了全双工的连接。
+
+
+\subsubsection{TCP创建连接终止过程}
+
+TCP连接的终止过程，需要使用4次握手对两个方向连接分别终止。当一端想要终止一方的连接时，它需要发送一个FIN包，然后另一端发送ACK确认。所以终止TCP连接需要一对FIN和ACK报文。但也可以只使用三次握手终止，即在另一方发送ACK确认时，同时发送FIN终止另一方的连接。
+
 \subsection{UDP协议的处理}
+在IP首部中，协议字段值为17，即0x11时，该IP报文携带的数据为UDP协议的数据。UDP提供的是一种简单的无连接的传输模型。UDP提供了校验和用于检验数据完整性，提供了源端口和目的端口用于区别不同的地址的功能。UDP协议没有握手过程，提供的是不可靠的数据传输：不保证数据的传输成功，数据的有序和不排除重复。
 
+    
+UDP首部的结构如\autoref{tab:5}：
 
-\subsection{伪代码}
+\begin{table}[h!]
+\centering
+\caption{UDP报文首部结构}\label{tab:5}
+\begin{tabular}{|c|c|c|c|c|}
+	\hline
+	位偏移 & 0-7 & 8-15 & 16-23 & 24-31\\\hline
+	0 & 源端口 & 目的端口 \\\hline
+	32 & 长度 & 校验和  \\\hline
+	\end{tabular}
+\end{table}
 
-\begin{lstlisting}
-handle_events(args){
+UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义了UDP的头部和数据的总长度，单位为byte，最小长度为8，因为首部为8个byte。校验和字段用于检验UDP首部和数据段的错误，在IPv4中，这个字段是可选的，如果不使用，这个字段是全0，而在IPv6中，这个字段是必须的。
 
-    // Terminate existing sessions not allowed anymore
-    check_allowed(args)
-
-    epoll_create
-
-    while (!stopping) {
-        分别数未关闭ICMP,UDP,TCP的数目
-        if（上次检查的时间在100ms以前）{
-
-            while (s!= NULL){
-                int del = 0;
-
-
-
-            }
-
-        }
-
-
-    }
-
-
-}
-\end{lstlisting}
+\todo{插入伪代码}
 
 \chapter{概要设计}
 
