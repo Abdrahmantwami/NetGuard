@@ -620,18 +620,30 @@ UDP首部的结构如\autoref{tab:5}：
 UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义了UDP的头部和数据的总长度，单位为byte，最小长度为8，因为首部为8个byte。校验和字段用于检验UDP首部和数据段的错误，在IPv4中，这个字段是可选的，如果不使用，这个字段是全0，而在IPv6中，这个字段是必须的。
 
 \todo{插入伪代码}
+\todo{将上述协议相关转移到详细设计}
 
 \chapter{概要设计}
 
-\section{总体功能设计}
+\section{功能设计}
 \todo[inline]{增加模块图，完善列举所有功能}
 \todo[inline]{对所有功能进行描述，画大量的逻辑图，扩充至10页}
 
+我们设计的网络防火墙需要在网络方面提供全方面的网络防护。首先，需要实现传统PC防火墙拥有的网络流量防护，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化；其次还需要针对下载操作提供加强，实现对下载文件的监控扫描；最后，还需要实现对网页安全的防护，实现对不安全网站的屏蔽。根据这些设计概念，我们将整个应用设计成了三个大模块，如\autoref{fig:3-0}:
 
+\begin{figure}[!h]
+\centering
+\includegraphics[width=1\textwidth]{function_all.png}
+\caption{总体功能模块图}\label{fig:3-0}
+\end{figure}
+
+
+下面我们分别对这三个模块进行需求分析和功能设计。
 
 \subsection{网络防护}
 
-\subsubsection{功能设计}
+\todo{更新网络防护的架构设计}
+
+网络防护旨在提供传统防火墙的网络连接的管理功能，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化。
 
 用户期望一个Android防火墙应用提供友好的交互界面和正常的拦截效果。设计中应实现：
 \begin{itemize}
@@ -644,30 +656,11 @@ UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义
     \item 配置导出导入
 \end{itemize}
 
-\subsubsection{模块设计}
-
-根据实现防火墙的原理和功能需求，设计了成如\autoref{fig:5}的应用架构。
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=.6\textwidth]{modules.pdf}
-\caption{应用模块层次}\label{fig:5}
-\end{figure}
-
-\begin{itemize}
-	\item 表现层\\ 表现层采用Activity作为主要实现，为用户提供友好的图形界面，是用户操作和管理防火墙的门户，是所有功能的入口，同时也承担着，在VPN服务层返回相应的信息（比如要求用户对是否允许某个应用的连接进行选择）时，对用户进行提醒；
-	\item VPN服务模块\\该模块是继承并实现Android提供的VpnService的关键组件，用以实现VPN的功能，将VPN过滤的流量传递到下一层进行解析，并根据解析和匹配的结果，向系统回应是否作相应的处理；
-	\item Native数据包解析模块\\该层主要完成将网络数据包进行解析，从中提取协议、地址、会话时间等关键信息，并用防火墙规则进行匹配，判断数据包是否放行；
-	\item 防火墙规则抽象模块\\该模块负责管理持久层的防火墙规则数据，将持久层信息抽象成相应的Java对象，供Native数据包解析模块使用；同时，由于在大量数据包中，规则的读取极其频繁，防火墙规则抽象模块也负责实现对规则的缓存，提高性能；
-	\item 持久层\\主要负责为上层模块提供持久化储存，主要包括SQLite数据库和SharePreference存储：防火墙规则采用关系型数据库进行储存，而其他公共功能的信息采用SharePreference储存；
-	\item 公共功能\\除核心防火墙之外的功能，如用户向导，版本更新，配置导入导出等功能由于功能简单，不在划分更加详细的模块层次。
-\end{itemize}
+\todo{添加一个图}
 
 \subsection{文件防护}
 
 文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。这个功能核心在于对下载文件夹等敏感目录进行监控，自动的进行恶意软件扫描和警报，另外也提供了让用户自定义扫描任何位置的功能。
-
-\subsubsection{功能设计}
 
 \begin{itemize}
     \item 实时监控控制开关：关闭和启用实时文件病毒防护
@@ -677,36 +670,33 @@ UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义
     \item 威胁处理界面：用户对识别出的威胁做出处理
 \end{itemize}
 
-\subsubsection{模块设计}
+根据上面的功能概要，设计了如\autoref{fig:3-2}的功能模块：
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{function_2.png}
+\caption{文件防护}\label{fig:3-2}
+\end{figure}
 
-\begin{itemize}
-    \item 表现模块\\ 表现模块主要是UI界面，包含对历史扫描记录的显示，威胁的处理，发起自定义扫描和配置文件监控扫描；历史记录和威胁处理主要和数据模块进行交互，发起扫描和配置文件监控则对扫描模块生效。
-    \item 扫描模块\\ 扫描引擎FileScanService是一个Service，负责接收命令，扫描文件和发出扫描结果。FileScanService在HandlerThread中进行扫描，在UI Thread中进行消息接收和结果反馈。多线程之间通过Handler-Message机制进行交流，避免在主线程进行耗时操作；
-    \item 数据模块\\ 数据模块负责接收扫描模块的扫描结果，进行本地存储扫描记录。
-\end{itemize}
+图中功能模块将文件病毒防护划分为4个子模块，分别为实时监控、自定义扫描、威胁处理和扫描记录。
 
-\subsubsection{模块设计}
+
 
 \subsection{网页防护}
 
 网页防护通过对流量的过滤，将存在威胁的ip以及存在恶意代码的网页进行屏蔽，阻止这些网站威胁到手机安全。在是实现上，以全局代理作为基础，对流量数据进行过滤，针对http和https等协议进行额外的检查。为了进行检查，首先需要一个恶意网站网址和恶意ip的列表，这种列表存在多种机构在各自独立的维护，主要是url reputation相关。在我们的安全软件上，需要下载一份列表，并定期进行更新，在发生网页访问时，通过Url从本地的列表查询是否是记录在案的恶意网站。对于恶意网站，忽略这个网络请求，并返回一个虚构的对用户进行恶意网站提示的网页，这个网页在软件本地生存。
 
-\subsubsection{功能设计}
+\todo{列出功能}
 
 \begin{itemize}
     \item 网页威胁控制开关：关闭和启用网页威胁防护
 \end{itemize}
 
-\subsubsection{模块设计}
-
-网页防护功能通过与防火墙协同工作实现，防火墙识别网页请求，并转发到网页防护进行处理。网页防护负责根据网页请求的URL进行查找本地黑名单，然后决定是否允许链接。
-
-\begin{itemize}
-    \item 代理模块\\ 代理模块由防火墙功能实现，它将从所有流量从提取HTTP和HTTPS流量，并将结果转发给网页过滤模块
-    \item 网页过滤模块\\ 网页过滤模块负责从黑名单中匹配网页请求，并生成返回结果
-    \item 黑名单模块管理模块\\ 黑名单模块负责提供黑名单，并负责对名单定期更新
-    \item 持久化模块\\ 负责存储黑名单数据
-\end{itemize}
+根据上面的功能概要，设计了如\autoref{fig:3-3}的功能模块：
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{function_3.png}
+\caption{网页防护}\label{fig:3-3}
+\end{figure}
 
 \section{UI设计}
 
@@ -737,6 +727,69 @@ UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义
 另外还有日志界面显示全局日志输出，帮助界面提供用户操作上的指导和关于界面展示开发者信息及反馈方式。
 
 \chapter{详细设计}
+
+\section{网络防护}
+
+
+
+根据实现防火墙的原理和功能需求，设计了成如\autoref{fig:5}的应用架构。
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.6\textwidth]{modules.pdf}
+\caption{应用模块层次}\label{fig:5}
+\end{figure}
+
+\begin{itemize}
+	\item 表现层\\ 表现层采用Activity作为主要实现，为用户提供友好的图形界面，是用户操作和管理防火墙的门户，是所有功能的入口，同时也承担着，在VPN服务层返回相应的信息（比如要求用户对是否允许某个应用的连接进行选择）时，对用户进行提醒；
+	\item VPN服务模块\\该模块是继承并实现Android提供的VpnService的关键组件，用以实现VPN的功能，将VPN过滤的流量传递到下一层进行解析，并根据解析和匹配的结果，向系统回应是否作相应的处理；
+	\item Native数据包解析模块\\该层主要完成将网络数据包进行解析，从中提取协议、地址、会话时间等关键信息，并用防火墙规则进行匹配，判断数据包是否放行；
+	\item 防火墙规则抽象模块\\该模块负责管理持久层的防火墙规则数据，将持久层信息抽象成相应的Java对象，供Native数据包解析模块使用；同时，由于在大量数据包中，规则的读取极其频繁，防火墙规则抽象模块也负责实现对规则的缓存，提高性能；
+	\item 持久层\\主要负责为上层模块提供持久化储存，主要包括SQLite数据库和SharePreference存储：防火墙规则采用关系型数据库进行储存，而其他公共功能的信息采用SharePreference储存；
+	\item 公共功能\\除核心防火墙之外的功能，如用户向导，版本更新，配置导入导出等功能由于功能简单，不在划分更加详细的模块层次。
+\end{itemize}
+
+
+\section{文件防护}
+
+文件病毒防护由实时监控、自定义扫描、威胁处理和扫描记录四个功能组成，在代码实现上，将UI表现层和业务逻辑层分开，设计了如\autoref{fig:4-2}的逻辑架构：
+
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.6\textwidth]{function_2_ori.png}
+\caption{文件病毒防护架构设计}\label{fig:4-2}
+\end{figure}
+
+这些模块的功能描述如下：
+
+\begin{itemize}
+    \item 表现模块\\ 表现模块主要是UI界面，包含对历史扫描记录的显示，威胁的处理，发起自定义扫描和配置文件监控扫描；历史记录和威胁处理主要和数据模块进行交互，发起扫描和配置文件监控则对扫描模块生效。
+    \item 扫描模块\\ 扫描引擎FileScanService是一个Service，负责接收命令，扫描文件和发出扫描结果。FileScanService在HandlerThread中进行扫描，在UI Thread中进行消息接收和结果反馈。多线程之间通过Handler-Message机制进行交流，避免在主线程进行耗时操作；
+    \item 数据模块\\ 数据模块负责接收扫描模块的扫描结果，进行本地存储扫描记录。
+\end{itemize}
+
+\section{网页防护}
+
+
+网页防护功能通过与防火墙协同工作实现，防火墙识别网页请求，并转发到网页防护进行处理。网页防护负责根据网页请求的URL进行查找本地黑名单，然后决定是否允许链接。
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.6\textwidth]{function_3_ori.png}
+\caption{网页防护架构设计}\label{fig:4-3}
+\end{figure}
+
+\todo{添加图片}
+
+
+\begin{itemize}
+    \item 代理模块\\ 代理模块由防火墙功能实现，它将从所有流量从提取HTTP和HTTPS流量，并将结果转发给网页过滤模块
+    \item 网页过滤模块\\ 网页过滤模块负责从黑名单中匹配网页请求，并生成返回结果
+    \item 黑名单模块管理模块\\ 黑名单模块负责提供黑名单，并负责对名单定期更新
+    \item 持久化模块\\ 负责存储黑名单数据
+\end{itemize}
+
 
 \section{前后端协议设计}
 
@@ -953,7 +1006,6 @@ Intent中可以携带信息，通过实现预定好的协议，可以从Intent�
     }
 \end{lstlisting}
 
-
 \section{应用配置设计}
 
 应用需要储存用户的配置，我们为方便用户，提供了以下全局设置选项：
@@ -995,6 +1047,12 @@ SharePreference是Android系统提供的一种简单的Key-Value持久化机制�
 \todo[inline]{增加SharePrefenrence图}
 
 \todo[inline]{列举设置条目}
+
+
+\subsection{文件防护设计}
+
+
+
 
 \chapter{系统测试}
 
