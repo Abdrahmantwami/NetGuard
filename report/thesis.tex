@@ -3,6 +3,7 @@
 \usepackage[colorinlistoftodos,prependcaption]{todonotes}
 \usepackage{enumitem}
 \usepackage{listings}
+\usepackage[section]{placeins}
 
 \stuno{U201315168}
 \schoolcode{10487}
@@ -236,7 +237,7 @@ struct nf_hook_ops
     int hooknum;
     int priority;
 };
-\end{list}
+\end{lstlisting}
 
 nf\_hook\_ops中的nf\_hookfn就是hook函数，实现一个nf\_hookfn函数，在该函数中实现对包的读取解析并过滤，返回NF\_ACCEP，NF\_DROP等返回值，即可实现对数据包的操作。
 
@@ -262,12 +263,167 @@ Android Emutolor 用来测试的Android虚拟机
 Android NDK Android Native开发
 Android Debug Bridge Android调试
 
-un
+\section{Android信息传递机制}
+
+\subsection{Intent信息传递}
+
+Intent是Android中独有的一种实现交互与通讯的机制。Intent不仅广泛应用于应用程序内部各种组件（如不同界面之间，界面和后台服务之间）彼此交流，而且在应用与应用，应用与系统之间的事件传递中也广泛使用。Intent可以包含应用程序的一次行为的动作（action），种类（category），标志（flag）和附加数据（extra）。
+
+如下代码，实现了在主界面中向后台服务发送了一个Intent，该Intent的包含了附加数据"start"命令，让后台服务启动VPN：
+
+    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+系统在接收到上述操作后，会回调后台服务的相应代码处理该Intent：
+
+    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+\subsection{本地广播通知}
+
+本地广播（Local Broadcast）是一种进程内的事件监听机制。进程内任何时刻均可注册任意事件监听器；当某一事件发生时，就会通知所有监听该事件的监听器。通过如下代码，可以监听：
 
 
-\section{VpnService API}
+    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-VpnService是用来继承并实现自己的VPN应用的基础类。它创建了虚拟网络接口，配置地址和路由规则，返回一个文件描述符给应用。对文件描述符每一次读，就会读取一个通过这个接口向外发出的数据包；对文件描述符的每一次写，就会插入一个入数据包，对接口而言，就相当于这个接口接收到了这个数据包／这个虚拟网络接口运行于IP协议层，所以数据包的 开头都是IP数据头。通过这个API，应用可以实现在隧道中与远程服务器的数据包处理和交换，构造一个VPN应用。
+
+
+
+\chapter{概要设计}
+
+\section{功能设计}
+\todo[inline]{增加模块图，完善列举所有功能}
+\todo[inline]{对所有功能进行描述，画大量的逻辑图，扩充至10页}
+
+我们设计的网络防火墙需要在网络方面提供全方面的网络防护。首先，需要实现传统PC防火墙拥有的网络流量防护，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化；其次还需要针对下载操作提供加强，实现对下载文件的监控扫描；最后，还需要实现对网页安全的防护，实现对不安全网站的屏蔽。根据这些设计概念，我们将整个应用设计成了三个大模块，如\autoref{fig:3-0}:
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=1\textwidth]{function_all.png}
+\caption{总体功能模块图}\label{fig:3-0}
+\end{figure}
+
+
+下面我们分别对这三个模块进行需求分析和功能设计。
+
+\subsection{网络防护}
+
+网络防护旨在提供传统防火墙的网络连接的管理功能，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化。
+
+用户期望一个Android防火墙应用提供友好的交互界面和正常的拦截效果。设计中应实现：
+\begin{itemize}
+    \item 拦截管理界面：对某个应用设置是否拦截流量
+    \item 全局控制开关：切换全局防火墙状态
+    \item 查看历史通信日志：查看单个应用的通信日志，包括尝试访问的地址，端口，协议类型，
+    \item 设置亮屏等特殊请客的规则
+    \item 支持IPv6
+    \item 支持家庭网络，按流量计费网络等单独规则
+    \item 配置导出导入
+\end{itemize}
+
+根据上面的需求分析，设计了如\autoref{fig:3-1}的功能模块：
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{function_1.png}
+	\caption{文件防护}\label{fig:3-1}
+\end{figure}
+
+图中功能模块将网络防护划分为4个子模块，分别为网络拦截、规则编辑和拦截记录。
+
+\subsection{文件防护}
+
+文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。这个功能核心在于对下载文件夹等敏感目录进行监控，自动的进行恶意软件扫描和警报，另外也提供了让用户自定义扫描任何位置的功能。
+
+\begin{itemize}
+    \item 实时监控控制开关：关闭和启用实时文件病毒防护
+    \item 实时监控配置界面：允许用户添加和删除监控区域
+    \item 自定义扫描：用户选取特定扫描区域进行扫描
+    \item 最近扫描记录列表：用户在此查看所有的扫描记录和扫描结果
+    \item 威胁处理界面：用户对识别出的威胁做出处理
+\end{itemize}
+
+根据上面的需求分析，设计了如\autoref{fig:3-2}的功能模块：
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{function_2.png}
+	\caption{文件防护}\label{fig:3-2}
+\end{figure}
+
+图中功能模块将文件病毒防护划分为4个子模块，分别为实时监控、自定义扫描、威胁处理和扫描记录。
+
+
+\FloatBarrier
+\subsection{网页防护}
+
+网页防护通过对流量的过滤，将存在威胁的ip以及存在恶意代码的网页进行屏蔽，阻止这些网站威胁到手机安全。在是实现上，以全局代理作为基础，对流量数据进行过滤，针对http和https等协议进行额外的检查。为了进行检查，首先需要一个恶意网站网址和恶意ip的列表，这种列表存在多种机构在各自独立的维护，主要是url reputation相关。在我们的安全软件上，需要下载一份列表，并定期进行更新，在发生网页访问时，通过Url从本地的列表查询是否是记录在案的恶意网站。对于恶意网站，忽略这个网络请求，并返回一个虚构的对用户进行恶意网站提示的网页，这个网页在软件本地生存。
+
+\begin{itemize}
+    \item 网页拦截：实现对网页的拦截，能够对功能进行开关
+    \item 拦截记录：能够显示拦截记录，将历史屏蔽的记录进行显示
+    \item 本地数据更新管理：能够控制本地黑民单的更新
+    \item 白名单管理：增加网页白名单
+\end{itemize}
+
+根据上面的需求分析，设计了如\autoref{fig:3-3}的功能模块：
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{function_3.png}
+	\caption{网页防护}\label{fig:3-3}
+\end{figure}
+
+\section{UI设计}
+
+\todo{增加界面导航图}
+
+为了给用户提供简便的操作和管理方式，我们对应用设计了符合Android设计规范的图形界面，主要UI设计如下：
+
+\subsection{主界面}
+
+主界面是我们应用最主要的部分，分为顶部的工具栏，工具栏下方是应用列表，两者中间可以插入通知消息；
+\begin{itemize}
+    \item 工具栏包含全局防火墙开关，搜索及排序按钮，以及最右边的菜单按钮，菜单按钮可打开设置界面、帮助界面和关于等界面。
+    \item 应用列表列出了所有的用户程序，并在每个用户程序旁边提供了两个按钮，分别对该应用所有的Wifi，数据流量的通信进行拦截
+    \item 通知消息栏在没有消息时会隐藏，需要时会提示重要信息，比如当前状态或者异常信息
+\end{itemize}
+
+应用列表只提供了两个按钮供用户快捷配置，但用户如果需要想要进行更高级的配置，点击列表项即可打开高级配置：
+
+
+用户可以设置亮屏或漫游时的白名单，也可将规则恢复为默认行为，还可以查看该应用程序所有尝试的访问请求记录，包括时间，地址或域名，协议类型和端口，对于每一条记录，可以单击设置对该记录选择：屏蔽或允许类似的请求，或者访问/whois该连接。
+
+\subsection{设置界面}
+
+设置界面采用了Android规范的列表形式，选择列表项可进入二级设置界面：
+
+\subsection{日志，帮助和关于界面}
+
+另外还有日志界面显示全局日志输出，帮助界面提供用户操作上的指导和关于界面展示开发者信息及反馈方式。
+
+\chapter{详细设计}
+
+\section{网络防护模块}
+
+根据实现防火墙的原理和功能需求，设计了成如\autoref{fig:5}的应用架构。
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=1\textwidth]{function_1_ori.png}
+\caption{网络防护架构图}\label{fig:5}
+\end{figure}
+
+上图中将网络防护模块分成了5个逻辑模块进行实现。其需要实现的基本功能如下：
+
+\begin{itemize}
+	\item 表现模块\\ 表现模块采用Activity作为主要实现，为用户提供友好的图形界面，是用户操作和管理防火墙的门户，是所有功能的入口，同时也承担着，在VPN服务层返回相应的信息（比如要求用户对是否允许某个应用的连接进行选择）时，对用户进行提醒；
+	\item VPN服务模块\\该模块是继承并实现Android提供的VpnService的关键组件，用以实现VPN的功能，将VPN过滤的流量传递到下一层进行解析，并根据解析和匹配的结果，向系统回应是否作相应的处理；
+	\item 数据分析模块\\该模块主要完成将网络数据包进行解析，从中提取协议、地址、会话时间等关键信息，并用防火墙规则进行匹配，判断数据包是否放行；
+	\item 防火墙规则模块\\该模块负责持久化储存防火墙规则数据，将防火墙规则抽象成相应的Java对象，供数据包分析模块使用；同时，由于在大量数据包中，规则的读取极其频繁，防火墙规则模块也负责实现对规则的缓存，提高性能；
+	\item 通信记录储存模块\\主要负责为通信记录提供持久化储存。
+\end{itemize}
+
+\subsection{VPN服务模块}
+
+\subsubsection{VPNService启动过程}
+
+VPN服务模块是通过继承实现Android提供的VpnService类来实现的。VpnService是用来继承并实现自己的VPN应用的基础类。它创建了虚拟网络接口，配置地址和路由规则，返回一个文件描述符给应用。对文件描述符每一次读，就会读取一个通过这个接口向外发出的数据包；对文件描述符的每一次写，就会插入一个入数据包，对接口而言，就相当于这个接口接收到了这个数据包。这个虚拟网络接口运行于IP协议层，所以数据包的 开头都是IP数据头。通过这个API，应用可以实现在隧道中与远程服务器的数据包处理和交换，构造一个VPN应用。
 
 允许应用拦截数据包带来了巨大的安全隐患。一个VPN应用可以轻而易举的切断网络，此外多个VPN应用也可能互相冲突。系统采取了多种措施来解决这个问题。主要是：
 \begin{enumerate}
@@ -277,6 +433,7 @@ VpnService是用来继承并实现自己的VPN应用的基础类。它创建了�
 	\item 系统会提供一个系统级的对话框，告知用户当前VPN连接的信息并允许用户断开VPN连接；
 	\item 当文件描述符关闭的时候或VPN应用崩溃和被系统杀死的时候，网络状态会被自动还原。
 \end{enumerate}
+
 
 VpnService中有两个重要方法：
 
@@ -295,6 +452,14 @@ establist();
      \item 当onRevoke()收回权限时，关闭文件描述符和隧道。
 \end{enumerate}
 
+VPNService的启动过程如\autoref{fig:4-1-1}所示，当用户通过UI界面启动VPN时，会触发该过程，如果该过程执行到启动数据分析模块，会调用native代码启动一个新线程，该线程运行数据分析模块，数据分析模块负责对文件描述符读写数据，实现VPN的功能。数据分析模块的逻辑我们会在下一节中进行介绍。
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{process_4_1_vpn.png}
+		\caption{VPNService启动流程图}\label{fig:4-1-1}
+	\end{figure}
+
  应用在继承VpnService实现VPN必须声明相应的权限和intent过滤器，范例如下：
 \begin{lstlisting}[language=xml]
   <service android:name=".ExampleVpnService"
@@ -304,13 +469,59 @@ establist();
       </intent-filter>
   </service>
 \end{lstlisting}
+\FloatBarrier
+\subsubsection{VPNService与UI的通信}
+
+VpnService和Activity之前通过Intent传递信息，实现控制。如图\autoref{fig:4-2-1}，
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.8\textwidth]{image_intent_commuciate.png}
+	\caption{VpnService与Activity通信图}\label{fig:4-2-1}
+\end{figure}
+
+Activity是界面，VpnService是后台服务。VpnService在工作时，Activity可能并不存在，如果需要传递信息给Activity，在其不存在时，就应该忽略这条信息；而Activity运行时，调用VpnService时，如果VpnService尚未运行，则需要创建VpnService。因此才采用了不同的通信机制：
+Activity注册本地本地广播接收器，VpnService通过sendBroadcast(Intent)方法发送本地广播，如果Activity存在并且正在监听，则会收到信息；
+Activity通过调用startService(Intent)发送Intent到VpnService，如果VpnService没有启动则会启动，已经启动则会通知现有的Service。
+
+Intent中可以携带信息，通过实现预定好的协议，可以从Intent携带的信息中得知命令。我们约定协议如下：
+\begin{itemize}
+    \item run     启动VPN后台服务，并进行请求权限等准备工作，进入就绪状态
+    \item start   建立VPN连接，开启防火墙
+    \item reload  重新载入防火墙配置
+    \item stop    断开VPN连接，暂停防火墙，回到就绪状态
+    \item stats   诊断状态，使防火墙将自身状态和日志输出到控制台
+\end{itemize}
+
+\subsubsection{VpnService状态机}
+
+实现VpnService代码量较多，为了使逻辑清晰，采用状态机的设计。包含以下状态：
+\begin{itemize}
+    \item none          未就绪状态，VpnService不可用
+    \item waiting       等待状态，用户已经许可了权限，但并没建立VPN连接
+    \item enforcing     启用状态，VPN连接已建立，VPN正在运行
+    \item stats         报告状态，VpnService需要报告当前信息，用于诊断
+\end{itemize}
+
+这些状态在使用run, start, reload, stop, stats这些命令时会发生状态迁移，状态迁移图如\autoref{fig:3} 所示：
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=.6\textwidth]{state_machine}
+\caption{VpnService状态迁移图}\label{fig:3}
+\end{figure}
 
 
-\section{处理通信流量}
+\subsection{数据分析模块}
+数据分析模块主要负责对文件描述符读写数据，该模块运行在一个native线程中，由VPN服务模块通过JNI调用启动。
+
+
+
+\subsubsection{处理通信流量}
 
 在我们的应用中，不需要创建一个到远程服务的隧道，但需要处理文件描述符中的数据。我们需要从文件描述符读取发送出来的流量，将其分析过滤，然后将其标记，然后写回文件描述符。这个过程使用C语言调用Android NDK API完成，然后通过JNI在Java代码中调用。首先，需要对文件描述符进行操作。
 
-\subsection{文件描述符的操作}
+\subsubsection{文件描述符的操作}
 
 https://segmentfault.com/a/1190000003063859
 
@@ -323,12 +534,10 @@ int epoll_wait(int epfd, struct epoll_event * events, int max_events, int timeou
 \end{lstlisting}
 
 \begin{enumerate}
-\item \lstinline {int epoll\_create(int size); }
-
+	\item \lstinline {int epoll\_create(int size); }
 创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大，参数size并不是限制了epoll所能监听的描述符最大个数，只是对内核初始分配内部数据结构的一个建议。当创建好epoll句柄后，它就会占用一个fd值，在linux下如果查看/proc/进程id/fd/，是能够看到这个fd的，所以在使用完epoll后，必须调用close()关闭，否则可能导致fd被耗尽。
 
-\item
-\lstinline {int epoll\_ctl(int epfd, int op, int fd, struct epoll\_event *event)；}
+	\item \lstinline {int epoll\_ctl(int epfd, int op, int fd, struct epoll\_event *event)；}
 
 函数是对指定描述符fd执行op操作。
 	\begin{itemize}
@@ -353,7 +562,7 @@ struct epoll_event {
 			\item EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
 		\end{itemize}
 	\end{itemize}
-\item \lstinline {int epoll\_wait(int epfd, struct epoll\_event *events, int max_events, int timeout);}
+	\item \lstinline {int epoll\_wait(int epfd, struct epoll\_event *events, int max_events, int timeout);}
 等待epfd上的io事件，最多返回max\_events个事件。
 
 参数events用来从内核得到事件的集合，maxevents告之内核这个events有多大，这个maxevents的值不能大于创建\verb|epoll_create()|时的size，参数timeout是超时时间（毫秒，0会立即返回，-1将不确定，也有说法说是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。
@@ -361,7 +570,7 @@ struct epoll_event {
 调用\verb|epoll_wait|时，线程会堵塞直至得到事件或者超时。其返回值i表示就绪的文件描述符的数目，当其大于0时，我们需要遍历events数组，数组里包含i个已经就绪的文件描述符。从就绪的文件描述符读取数据后进行解析和处理。
 \end{enumerate}
 
-\subsection{IP数据包处理}
+\subsubsection{IP数据包处理}
 
 %% http://www.ciscopress.com/articles/article.asp?p=348253&seqNum=4
 
@@ -505,7 +714,7 @@ https://technet.microsoft.com/en-us/library/cc958821.aspx
 
 在完成IP层的IP首部的解析后，我们已经获知了数据包的源IP，目的IP，载荷偏移地址和传输层协议。根据协议的不同，我们还需进行进一步的解析。我们准备支持的传输层协议包括TCP，UDP，ICMP和ICMPv6协议。这些协议的值定义在linux/in.h文件中。下面我们需要对不同协议进行分别处理。
 
-\subsection{TCP协议报文解析}
+\subsubsection{TCP协议报文解析}
 
 在IP首部中，协议字段值为6，即0x06时，该IP报文携带的数据为TCP协议的数据。TCP（Transmission Control Protocol ）提供了点对点，面向连接的可靠传输服务。TCP负责建立TCP连接,在传输过程中，TCP有序发送数据报并进行确认，对丢失的数据报进行重发恢复。我们对TCP层的数据进行解析的主要目的包括两个：
     
@@ -600,7 +809,7 @@ TCP在创建连接时，采用了三次握手。在客户端连接服务器之�
 
 TCP连接的终止过程，需要使用4次握手对两个方向连接分别终止。当一端想要终止一方的连接时，它需要发送一个FIN包，然后另一端发送ACK确认。所以终止TCP连接需要一对FIN和ACK报文。但也可以只使用三次握手终止，即在另一方发送ACK确认时，同时发送FIN终止另一方的连接。
 
-\subsection{UDP协议的处理}
+\subsubsection{UDP协议的处理}
 在IP首部中，协议字段值为17，即0x11时，该IP报文携带的数据为UDP协议的数据。UDP提供的是一种简单的无连接的传输模型。UDP提供了校验和用于检验数据完整性，提供了源端口和目的端口用于区别不同的地址的功能。UDP协议没有握手过程，提供的是不可靠的数据传输：不保证数据的传输成功，数据的有序和不排除重复。
 
     
@@ -620,137 +829,8 @@ UDP首部的结构如\autoref{tab:5}：
 UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义了UDP的头部和数据的总长度，单位为byte，最小长度为8，因为首部为8个byte。校验和字段用于检验UDP首部和数据段的错误，在IPv4中，这个字段是可选的，如果不使用，这个字段是全0，而在IPv6中，这个字段是必须的。
 
 \todo{插入伪代码}
-\todo{将上述协议相关转移到详细设计}
 
-\chapter{概要设计}
-
-\section{功能设计}
-\todo[inline]{增加模块图，完善列举所有功能}
-\todo[inline]{对所有功能进行描述，画大量的逻辑图，扩充至10页}
-
-我们设计的网络防火墙需要在网络方面提供全方面的网络防护。首先，需要实现传统PC防火墙拥有的网络流量防护，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化；其次还需要针对下载操作提供加强，实现对下载文件的监控扫描；最后，还需要实现对网页安全的防护，实现对不安全网站的屏蔽。根据这些设计概念，我们将整个应用设计成了三个大模块，如\autoref{fig:3-0}:
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=1\textwidth]{function_all.png}
-\caption{总体功能模块图}\label{fig:3-0}
-\end{figure}
-
-
-下面我们分别对这三个模块进行需求分析和功能设计。
-
-\subsection{网络防护}
-
-\todo{更新网络防护的架构设计}
-
-网络防护旨在提供传统防火墙的网络连接的管理功能，同时针对移动网络环境，提供面向移动应用和面向移动网络环境的优化。
-
-用户期望一个Android防火墙应用提供友好的交互界面和正常的拦截效果。设计中应实现：
-\begin{itemize}
-    \item 拦截管理界面：对某个应用设置是否拦截流量
-    \item 全局控制开关：切换全局防火墙状态
-    \item 查看历史通信日志：查看单个应用的通信日志，包括尝试访问的地址，端口，协议类型，
-    \item 设置亮屏等特殊请客的规则
-    \item 支持IPv6
-    \item 支持家庭网络，按流量计费网络等单独规则
-    \item 配置导出导入
-\end{itemize}
-
-\todo{添加一个图}
-
-\subsection{文件防护}
-
-文件防护旨在提供本地文件的病毒扫描以及实时文件系统监控扫描的功能。这个功能核心在于对下载文件夹等敏感目录进行监控，自动的进行恶意软件扫描和警报，另外也提供了让用户自定义扫描任何位置的功能。
-
-\begin{itemize}
-    \item 实时监控控制开关：关闭和启用实时文件病毒防护
-    \item 实时监控配置界面：允许用户添加和删除监控区域
-    \item 自定义扫描：用户选取特定扫描区域进行扫描
-    \item 最近扫描记录列表：用户在此查看所有的扫描记录和扫描结果
-    \item 威胁处理界面：用户对识别出的威胁做出处理
-\end{itemize}
-
-根据上面的功能概要，设计了如\autoref{fig:3-2}的功能模块：
-\begin{figure}[!h]
-\centering
-\includegraphics[width=0.8\textwidth]{function_2.png}
-\caption{文件防护}\label{fig:3-2}
-\end{figure}
-
-图中功能模块将文件病毒防护划分为4个子模块，分别为实时监控、自定义扫描、威胁处理和扫描记录。
-
-
-
-\subsection{网页防护}
-
-网页防护通过对流量的过滤，将存在威胁的ip以及存在恶意代码的网页进行屏蔽，阻止这些网站威胁到手机安全。在是实现上，以全局代理作为基础，对流量数据进行过滤，针对http和https等协议进行额外的检查。为了进行检查，首先需要一个恶意网站网址和恶意ip的列表，这种列表存在多种机构在各自独立的维护，主要是url reputation相关。在我们的安全软件上，需要下载一份列表，并定期进行更新，在发生网页访问时，通过Url从本地的列表查询是否是记录在案的恶意网站。对于恶意网站，忽略这个网络请求，并返回一个虚构的对用户进行恶意网站提示的网页，这个网页在软件本地生存。
-
-\todo{列出功能}
-
-\begin{itemize}
-    \item 网页威胁控制开关：关闭和启用网页威胁防护
-\end{itemize}
-
-根据上面的功能概要，设计了如\autoref{fig:3-3}的功能模块：
-\begin{figure}[!h]
-\centering
-\includegraphics[width=0.8\textwidth]{function_3.png}
-\caption{网页防护}\label{fig:3-3}
-\end{figure}
-
-\section{UI设计}
-
-\todo{增加界面导航图}
-
-为了给用户提供简便的操作和管理方式，我们对应用设计了符合Android设计规范的图形界面，主要UI设计如下：
-
-\subsection{主界面}
-
-主界面是我们应用最主要的部分，分为顶部的工具栏，工具栏下方是应用列表，两者中间可以插入通知消息；
-\begin{itemize}
-    \item 工具栏包含全局防火墙开关，搜索及排序按钮，以及最右边的菜单按钮，菜单按钮可打开设置界面、帮助界面和关于等界面。
-    \item 应用列表列出了所有的用户程序，并在每个用户程序旁边提供了两个按钮，分别对该应用所有的Wifi，数据流量的通信进行拦截
-    \item 通知消息栏在没有消息时会隐藏，需要时会提示重要信息，比如当前状态或者异常信息
-\end{itemize}
-
-应用列表只提供了两个按钮供用户快捷配置，但用户如果需要想要进行更高级的配置，点击列表项即可打开高级配置：
-
-
-用户可以设置亮屏或漫游时的白名单，也可将规则恢复为默认行为，还可以查看该应用程序所有尝试的访问请求记录，包括时间，地址或域名，协议类型和端口，对于每一条记录，可以单击设置对该记录选择：屏蔽或允许类似的请求，或者访问/whois该连接。
-
-\subsection{设置界面}
-
-设置界面采用了Android规范的列表形式，选择列表项可进入二级设置界面：
-
-\subsection{日志，帮助和关于界面}
-
-另外还有日志界面显示全局日志输出，帮助界面提供用户操作上的指导和关于界面展示开发者信息及反馈方式。
-
-\chapter{详细设计}
-
-\section{网络防护}
-
-
-
-根据实现防火墙的原理和功能需求，设计了成如\autoref{fig:5}的应用架构。
-
-\begin{figure}[!h]
-\centering
-\includegraphics[width=.6\textwidth]{modules.pdf}
-\caption{应用模块层次}\label{fig:5}
-\end{figure}
-
-\begin{itemize}
-	\item 表现层\\ 表现层采用Activity作为主要实现，为用户提供友好的图形界面，是用户操作和管理防火墙的门户，是所有功能的入口，同时也承担着，在VPN服务层返回相应的信息（比如要求用户对是否允许某个应用的连接进行选择）时，对用户进行提醒；
-	\item VPN服务模块\\该模块是继承并实现Android提供的VpnService的关键组件，用以实现VPN的功能，将VPN过滤的流量传递到下一层进行解析，并根据解析和匹配的结果，向系统回应是否作相应的处理；
-	\item Native数据包解析模块\\该层主要完成将网络数据包进行解析，从中提取协议、地址、会话时间等关键信息，并用防火墙规则进行匹配，判断数据包是否放行；
-	\item 防火墙规则抽象模块\\该模块负责管理持久层的防火墙规则数据，将持久层信息抽象成相应的Java对象，供Native数据包解析模块使用；同时，由于在大量数据包中，规则的读取极其频繁，防火墙规则抽象模块也负责实现对规则的缓存，提高性能；
-	\item 持久层\\主要负责为上层模块提供持久化储存，主要包括SQLite数据库和SharePreference存储：防火墙规则采用关系型数据库进行储存，而其他公共功能的信息采用SharePreference储存；
-	\item 公共功能\\除核心防火墙之外的功能，如用户向导，版本更新，配置导入导出等功能由于功能简单，不在划分更加详细的模块层次。
-\end{itemize}
-
-
-\section{文件防护}
+\section{文件防护模块}
 
 文件病毒防护由实时监控、自定义扫描、威胁处理和扫描记录四个功能组成，在代码实现上，将UI表现层和业务逻辑层分开，设计了如\autoref{fig:4-2}的逻辑架构：
 
@@ -769,91 +849,24 @@ UDP的首部由4个部分组成，长度均为16 bits，其中长度字段定义
     \item 数据模块\\ 数据模块负责接收扫描模块的扫描结果，进行本地存储扫描记录。
 \end{itemize}
 
-\section{网页防护}
+\section{网页防护模块}
 
 
 网页防护功能通过与防火墙协同工作实现，防火墙识别网页请求，并转发到网页防护进行处理。网页防护负责根据网页请求的URL进行查找本地黑名单，然后决定是否允许链接。
 
 \begin{figure}[!h]
 \centering
-\includegraphics[width=.6\textwidth]{function_3_ori.png}
+\includegraphics[width=1\textwidth]{function_3_ori.png}
 \caption{网页防护架构设计}\label{fig:4-3}
 \end{figure}
 
-\todo{添加图片}
-
-
 \begin{itemize}
-    \item 代理模块\\ 代理模块由防火墙功能实现，它将从所有流量从提取HTTP和HTTPS流量，并将结果转发给网页过滤模块
+    \item 表现模块\\ 负责呈现UI界面，提供对网页防护的全局开关控制，对历史拦截记录的显示等
+    \item 网络防护模块\\ 网络防护模块先前已经说明，它会在网络防护的过滤开关为开启状态时，将从所有流量中提取HTTP和HTTPS流量，将请求信息转发给网页过滤模块，并且根据网页过滤模块的返回结果决定数据包是否转发
     \item 网页过滤模块\\ 网页过滤模块负责从黑名单中匹配网页请求，并生成返回结果
-    \item 黑名单模块管理模块\\ 黑名单模块负责提供黑名单，并负责对名单定期更新
-    \item 持久化模块\\ 负责存储黑名单数据
+    \item 黑名单管理模块\\ 黑名单模块负责提供剔除了用户定义的白名单的黑名单，并负责对名单定期更新
+    \item 拦截记录储存模块\\ 负责存储拦截记录
 \end{itemize}
-
-
-\section{前后端协议设计}
-
-\subsection{Intent信息传递}
-
-Intent是Android中独有的一种实现交互与通讯的机制。Intent不仅广泛应用于应用程序内部各种组件（如不同界面之间，界面和后台服务之间）彼此交流，而且在应用与应用，应用与系统之间的事件传递中也广泛使用。Intent可以包含应用程序的一次行为的动作（action），种类（category），标志（flag）和附加数据（extra）。
-
-如下代码，实现了在主界面中向后台服务发送了一个Intent，该Intent的包含了附加数据"start"命令，让后台服务启动VPN：
-
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-系统在接收到上述操作后，会回调后台服务的相应代码处理该Intent：
-
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-\subsection{本地广播通知}
-
-本地广播（Local Broadcast）是一种进程内的事件监听机制。进程内任何时刻均可注册任意事件监听器；当某一事件发生时，就会通知所有监听该事件的监听器。通过如下代码，可以监听：
-
-
-    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-
-\subsection{协议}
-
-VpnService和Activity之前通过Intent传递信息，实现控制。如图\autoref{fig:1}，
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=.8\textwidth]{image_intent_commuciate.png}
-\caption{VpnService与Activity通信图}\label{fig:1}
-\end{figure}
-
-Activity是界面，VpnService是后台服务。VpnService在工作时，Activity可能并不存在，如果需要传递信息给Activity，在其不存在时，就应该忽略这条信息；而Activity运行时，调用VpnService时，如果VpnService尚未运行，则需要创建VpnService。因此才采用了不同的通信机制：
-Activity注册本地本地广播接收器，VpnService通过sendBroadcast(Intent)方法发送本地广播，如果Activity存在并且正在监听，则会收到信息；
-Activity通过调用startService(Intent)发送Intent到VpnService，如果VpnService没有启动则会启动，已经启动则会通知现有的Service。
-
-Intent中可以携带信息，通过实现预定好的协议，可以从Intent携带的信息中得知命令。我们约定协议如下：
-\begin{itemize}
-    \item run     启动VPN后台服务，并进行请求权限等准备工作，进入就绪状态
-    \item start   建立VPN连接，开启防火墙
-    \item reload  重新载入防火墙配置
-    \item stop    断开VPN连接，暂停防火墙，回到就绪状态
-    \item stats   诊断状态，使防火墙将自身状态和日志输出到控制台
-\end{itemize}
-
-\section{VpnService状态机}
-
-实现VpnService代码量较多，为了使逻辑清晰，采用状态机的设计。包含以下状态：
-\begin{itemize}
-    \item none          未就绪状态，VpnService不可用
-    \item waiting       等待状态，用户已经许可了权限，但并没建立VPN连接
-    \item enforcing     启用状态，VPN连接已建立，VPN正在运行
-    \item stats         报告状态，VpnService需要报告当前信息，用于诊断
-\end{itemize}
-
-这些状态在使用run, start, reload, stop, stats这些命令时会发生状态迁移，状态迁移图如\autoref{fig:3} 所示：
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=.6\textwidth]{state_machine}
-\caption{VpnService状态迁移图}\label{fig:3}
-\end{figure}
-
 
 \section{防火墙规则设计}
 
