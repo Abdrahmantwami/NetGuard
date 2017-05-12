@@ -33,7 +33,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_data_protection"
         android:stateListAnimator="@animator/fab_elevation"
-        android:tint="@color/fas_foreground"
+        android:tint="#fff"
         app:fabSize="normal"
         app:fas_checked="false"
         app:fas_colorChecked="#00b64c"

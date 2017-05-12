@@ -138,7 +138,7 @@
             android:layout_margin="16dp"
             android:src="@drawable/ic_firewall"
             android:stateListAnimator="@animator/fab_elevation"
-            android:tint="@color/fas_foreground"
+            android:tint="#fff"
             ads:fabSize="normal"
             ads:fas_checked="false"
             ads:fas_colorChecked="#00b64c"

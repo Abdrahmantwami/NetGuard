@@ -47,7 +47,7 @@ public class AdapterVirusList extends BaseAdapter implements SharedPreferences
     private final String virus_msg_info2_danger;
     private final String virus_msg_info2_suspicious;
     private final String virus_msg_info2_safe;
-    private SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat(" YYYY-MM-dd HH:MM", Locale
+    private SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat(" MM-dd HH:MM", Locale
             .getDefault());
 
     public void add(List<Scan> scans) {

@@ -30,7 +30,7 @@
         style="@style/TextAppearance.AppCompat.Notification.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
         android:paddingTop="4dp"
         android:text="发现一个严重威胁，点此进行处理"
         />
@@ -41,8 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="2dp"
-        android:paddingEnd="8dp"
-        android:paddingStart="8dp"
+        android:paddingRight="8dp"
+        android:paddingLeft="8dp"
         android:paddingTop="2dp"
         android:text="File: Downloads/virus.exe"
         />
@@ -53,8 +53,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="8dp"
-        android:paddingEnd="8dp"
-        android:paddingStart="8dp"
+        android:paddingRight="8dp"
+        android:paddingLeft="8dp"
         android:paddingTop="2dp"
         android:text="13个扫描引擎标记为有害软件，威胁级别 高"/>
 </LinearLayout>
