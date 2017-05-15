@@ -4,6 +4,7 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage[section]{placeins}
+\usepackage{subcaption}
 
 \stuno{U201315168}
 \schoolcode{10487}
@@ -1235,6 +1236,8 @@ else
 \begin{enumerate}
 	\item 在Android 5.1以下系统运行正常\\ 
 
+在测试时，我们选取了Android 4.4的系统进行了权限测试，Android 4.4系统在安装时进行了权限授权，并且通过卸载app之外的方式无法撤销，程序运行正常。如\autoref{fig:5-1-1}:
+
 	\begin{figure}[!h]
 		\centering
 		\includegraphics[width=1\textwidth]{test_5_1_1.png}
@@ -1251,33 +1254,98 @@ else
 	
 	\item 在不同尺寸的屏幕上显示正常
 	
+	1440*2560
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_1_3_0.png}
+		\caption{560dpi显示测试}\label{fig:5-1-3-0}
+	\end{figure}
+	
+	480*800
+	
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_1_3_1.png}
+		\caption{hdi显示测试}\label{fig:5-1-3-1}
+	\end{figure}
+	
 \end{enumerate}
 
 \section{功能测试}
 
 \subsection{网络防护测试}
 
+	\begin{figure}
+		\centering
+		\begin{subfigure}[b]{0.3\textwidth}            
+			\frame{ \includegraphics[width=3cm\textwidth]{test_5_2_1_0.png}}
+			\caption{Interpolation for Data 1}\label{fig:5_2_1_0}
+		\end{subfigure}
+%
+\hspace{1cm}
+%
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\frame{\includegraphics[width=3cm]{test_5_2_1_1.png}}
+			\caption{Interpolation for Data 2}\label{fig:5_2_1_1}
+		\end{subfigure}
+	\caption{Interpolation}\label{fig:TOF}
+\end{figure}
+
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_2_1_0.png}
+		\caption{网络防护测试}\label{fig:5_2_1_0}
+	\end{figure}
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_2_1_1.png}
+		\caption{网络防护测试}\label{fig:5_2_1_1}
+	\end{figure}
+	
+	
+	\begin{figure}[!h]
+		\includegraphics[width=0.5\textwidth]{test_5_2_1_2.png}
+		\includegraphics[width=0.5\textwidth]{test_5_2_1_3.png}
+		\caption{网络防护测试}\label{fig:5_2_1_2}
+	\end{figure}
+	
+	
+	
+	\begin{figure}[!h]
+		\centering
+		\caption{网络防护测试}\label{fig:5_2_1_3}
+	\end{figure}
+	
 \subsection{文件防护测试}
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_2_2_0.png}
+		\caption{文件防护测试}\label{fig:5_2_2_0}
+	\end{figure}
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1\textwidth]{test_5_2_2_1.png}
+		\caption{文件防护测试}\label{fig:5_2_2_1}
+	\end{figure}
+
 
 \subsection{网页防护测试}
+
+
 
 \section{性能测试}
 
 
 \chapter{结论}
 
+在本文中，我们通过实现VPNService的方式，将Android系统的流量进行过滤和解析，通过自定义的个性化规则，实现了一种基于Android的网络防火墙。这个防火墙不仅具有传统防火墙根据通信的源地址和目的地址过滤拦截的功能，还针对移动互联网流量价格昂贵的环境，支持了WiFI和移动数据网络的区分，也支持漫游网络的区分；针对移动设备电能有限，存在延长电池续航的需求的特性，支持了亮屏下采用特殊规则。与传统防火墙往往面对的是专业网络管理员不同，我们针对专业技能较为有限的用户进行了优化：首先提供了友好而美观的图形交互界面，完善的使用提示；其次我们对规则的添加采取了交互式的方式，通过记录应用的网络请求，来让用户方便和有效的设置特定目的地址的屏蔽规则，也提供了whois等快捷工具性操作；最后我们为方便用户切换防火墙状态，也提供了快捷方式、通知栏控件等方式管理防火墙。除了实现流量的过滤以及管理，我们的网络防火墙对文件下载操作也提供了反病毒保护，我们支持对文件系统敏感区域进行监控保护，对可疑文件进行云端病毒扫描，实现发现可疑文件对用户进行提醒警报。在网页浏览方面，我们实现了不良网页的拦截，针对存在恶意代码的网站，进行屏蔽，保障安全。
+
 \backmatter
 
-\begin{ack}
-致谢正文。
-\end{ack}
 
 \bibliography{ref-example}
-
-\appendix
-
-\chapter{这是一个附录}\label{appendix:1}
-附录正文。
 
 
 \end{document}
